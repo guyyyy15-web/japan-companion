@@ -454,6 +454,7 @@ main {
   gap: 6px;
 }
 .word-ja { font-size: 0.72rem; color: var(--ink-2); }
+.word.more { border-style: dashed; color: var(--ai); font-weight: 600; background: transparent; }
 .word.active { border-color: var(--shu); background: var(--shu-soft); }
 .word.active .word-ja { color: var(--shu); }
 .search.small { padding: 8px 12px; font-size: 16px; }
