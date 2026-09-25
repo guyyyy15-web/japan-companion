@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  # Lets refresh-facilities.yml redeploy after committing new data.
+  workflow_call:
 
 permissions:
   contents: read

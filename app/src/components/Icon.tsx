@@ -7,6 +7,7 @@ const PATHS = {
   guide: 'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17z M15.3 8.7l-2 4.6-4.6 2 2-4.6z',
   speaker: 'M4.5 9.5h3.5l4.5-4v13l-4.5-4H4.5z M15.5 9.2a3.8 3.8 0 0 1 0 5.6 M18 6.8a7.3 7.3 0 0 1 0 10.4',
   card: 'M3.5 6h17v12h-17z M7 10h10 M7 13.5h6',
+  nearby: 'M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z M12 7.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z',
 } as const
 
 export type IconName = keyof typeof PATHS
