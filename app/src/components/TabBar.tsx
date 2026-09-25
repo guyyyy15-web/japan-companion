@@ -1,14 +1,15 @@
 import { useI18n } from '../i18n'
+import { Icon, type IconName } from './Icon'
 import type { Key } from '../i18n/en'
 
 export type Tab = 'phrases' | 'builder' | 'signs' | 'money' | 'guide'
 
-const TABS: { id: Tab; icon: string; key: Key }[] = [
-  { id: 'phrases', icon: '💬', key: 'tab.phrases' },
-  { id: 'builder', icon: '🧩', key: 'tab.builder' },
-  { id: 'signs', icon: '🈯', key: 'tab.signs' },
-  { id: 'money', icon: '💴', key: 'tab.money' },
-  { id: 'guide', icon: '🧭', key: 'tab.guide' },
+const TABS: { id: Tab; icon: IconName; key: Key }[] = [
+  { id: 'phrases', icon: 'phrases', key: 'tab.phrases' },
+  { id: 'builder', icon: 'builder', key: 'tab.builder' },
+  { id: 'signs', icon: 'signs', key: 'tab.signs' },
+  { id: 'money', icon: 'money', key: 'tab.money' },
+  { id: 'guide', icon: 'guide', key: 'tab.guide' },
 ]
 
 export function TabBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
@@ -22,7 +23,7 @@ export function TabBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void
           aria-current={x.id === tab ? 'page' : undefined}
           onClick={() => onChange(x.id)}
         >
-          <span className="tab-icon" aria-hidden>{x.icon}</span>
+          <span className="tab-icon"><Icon name={x.icon} /></span>
           <span>{t(x.key)}</span>
         </button>
       ))}

@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { CATEGORIES, LISTEN_PLACES, SIGN_PLACES, listening, phrases, signs } from '../content'
 import { EMERGENCY_CONTACTS, GUIDE } from '../content/guide'
 
-// Hiragana, katakana, the long-vowel mark, spaces and the ellipsis used in fill-in phrases.
-const KANA_ONLY = /^[぀-ゟ゠-ヿー …]+$/
+// Hiragana, katakana, the long-vowel mark, spaces, the Japanese comma and the ellipsis used in fill-in phrases.
+const KANA_ONLY = /^[぀-ゟ゠-ヿー …、]+$/
 const HEBREW = /[א-ת]/
 const LATIN = /[a-z]/i
 
@@ -28,7 +28,7 @@ describe('phrases', () => {
       expect(p.he_pron, p.id).toMatch(HEBREW)
       expect(p.he, p.id).toMatch(HEBREW)
       expect(p.en, p.id).toMatch(LATIN)
-      expect(p.romaji, p.id).toMatch(/^[a-z' -]+$/)
+      expect(p.romaji, p.id).toMatch(/^[a-z' ,-]+$/)
       expect(typeof p.card, p.id).toBe('boolean')
     }
   })

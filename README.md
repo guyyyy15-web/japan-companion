@@ -9,11 +9,15 @@ visitor well.
 2. **Money:** know what something costs in shekels and dollars, and handle a
    country that still runs on cash.
 
-> **Status:** v0.4. The phrase builder has type-ahead search, a small-screen layout, 46 sentence
-> frames and a better Japanese voice. Phrases, show-cards, signs, a converter and a guide, all offline.
+> **Status:** v0.5. Light, modern Japanese design; the builder grows to 57 frames × 420 words (hobbies,
+> arcades, retro games, vintage clothes, skincare, prices); 137 ready phrases. Everything works offline.
 
 **Live app:** https://guyyyy15-web.github.io/japan-companion/ (deployed automatically
-from `main`). On each iPhone, open it in **Safari → Share → Add to Home Screen**.
+from `main` by `.github/workflows/deploy.yml`).
+
+> **Pages setting:** Settings → Pages → Build and deployment → **Source: GitHub Actions**.
+> If it's set to "Deploy from a branch", GitHub *also* publishes this README as the site
+> and the two deployments race. Whichever finishes last wins, so you sometimes get the README. On each iPhone, open it in **Safari → Share → Add to Home Screen**.
 
 ## Run it
 
@@ -31,8 +35,8 @@ npm run preview &  # then: npm run smoke  (iPhone-viewport browser test, writes 
 
 | Tab | What it does |
 |-----|--------------|
-| 💬 Phrases | 102 phrases in 9 categories: Japanese, Hebrew pronunciation, romaji, 🔊 audio, ★ favorites, search. 🪧 opens a **full-screen card** to show staff, with the screen kept on and a flip-toward-them button. **👂 "They say"**: 20 phrases staff say to *you* (konbini, restaurant, station), each with what to answer. |
-| 🧩 Builder | **Build your own sentence.** Type a few words in Hebrew, English or Japanese ("toilet", "לשכור אופניים", "heat") and pick a ready sentence, or choose a group (getting around / ordering / requests / problems), a frame and a word. 46 frames × 274 words and actions: where is, how do we get to, which platform for Kyoto, tickets ×2 to Osaka, how much is that, can I have, I'm allergic to, could you heat it up, may I take a photo, please call a doctor, the air conditioner is broken… You get correct Japanese, kana, romaji, Hebrew pronunciation, 🔊 / 🐢 audio and the show-card. See [the design](docs/05-phrase-builder.md). |
+| 💬 Phrases | 137 phrases in 11 categories (incl. hobbies & collecting, beauty & skincare): Japanese, Hebrew pronunciation, romaji, 🔊 audio, ★ favorites, search. 🪧 opens a **full-screen card** to show staff, with the screen kept on and a flip-toward-them button. **👂 "They say"**: 20 phrases staff say to *you* (konbini, restaurant, station), each with what to answer. |
+| 🧩 Builder | **Build your own sentence.** Type a few words in Hebrew, English or Japanese ("toilet", "לשכור אופניים", "heat") and pick a ready sentence, or choose a group (getting around / ordering / requests / problems), a frame and a word. 57 frames × 420 words and actions in five groups (getting around, ordering, **shopping**, requests, problems): is it second-hand, does it work outside Japan, discount on this, is tax included, a cheaper one, size M, most popular face lotion, OK for sensitive skin, how do I use the crane game, could you move the prize, where is, how do we get to, which platform for Kyoto, tickets ×2 to Osaka, how much is that, can I have, I'm allergic to, could you heat it up, may I take a photo, please call a doctor, the air conditioner is broken… You get correct Japanese, kana, romaji, Hebrew pronunciation, 🔊 / 🐢 audio and the show-card. See [the design](docs/05-phrase-builder.md). |
 | 🈯 Signs | 83 kanji from signs and menus (exits, push/pull, open/closed, tax-free, pork/beef, onsen curtains…), by place, searchable |
 | 💴 Money | ¥ ↔ ₪ ↔ $ keypad converter, live rate cached for offline, optional card-fee % and a manual rate, a quick-reference table, and a tax-free check (≥ ¥5,000 before tax) |
 | 🧭 Guide | Japanese voice settings (choose the best voice, speed, test), tap-to-call emergency numbers and the Israeli embassy, a pre-flight checklist, cash & ATMs, tax-free rules, trains & Suica, etiquette, earthquakes |
@@ -73,7 +77,7 @@ Everything is Hebrew (RTL) or English with one toggle.
 | Priority | Language help and money first |
 | Scope | General Japan, not tied to a specific itinerary |
 | Diet cards | Not needed |
-| Look | Calm Japanese minimal: paper white, ink, vermilion (torii red); follows dark mode |
+| Look | Modern Japanese, light only: washi paper, sumi ink, vermilion (shu) and indigo (ai); Heebo for Hebrew/Latin, Hiragino Sans/Mincho for Japanese; line icons; hanko-stamp logo |
 | Tax-free | Trip ends before Nov 1, 2026, so the **current** rules apply (discount at the till) |
 
 ## Layout

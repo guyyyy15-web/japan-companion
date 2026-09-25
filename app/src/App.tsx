@@ -23,9 +23,13 @@ export function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>
-          <span className="logo" aria-hidden>⛩️</span> {t('app.title')}
-        </h1>
+        <div className="brand">
+          <span className="hanko" lang="ja" aria-hidden>旅</span>
+          <div className="brand-text">
+            <h1>{t('app.title')}</h1>
+            <span className="brand-sub" lang="ja">日本旅行のおとも</span>
+          </div>
+        </div>
         <button className="lang" onClick={() => setLang(lang === 'he' ? 'en' : 'he')}>
           {t('app.langToggle')}
         </button>
