@@ -32,7 +32,7 @@ export const GUIDE: GuideSection[] = [
     title: { he: 'לפני הטיסה', en: 'Before you fly' },
     points: [
       { he: 'התקינו את האפליקציה: ספארי ← שיתוף ← "הוסף למסך הבית". כך היא עובדת גם בלי אינטרנט.', en: 'Install this app: Safari → Share → "Add to Home Screen". That makes it work offline.' },
-      { he: 'הורידו קול יפני: הגדרות ← נגישות ← תוכן מדובר ← קולות ← יפנית. בלי זה כפתור ההשמעה לא יעבוד בלי רשת.', en: 'Download a Japanese voice: Settings → Accessibility → Spoken Content → Voices → Japanese. Without it, 🔊 needs a connection.' },
+      { he: 'הורידו קול יפני איכותי: הגדרות ← נגישות ← תוכן מדובר ← קולות ← יפנית ← Kyoko (משופר) או O-ren (פרימיום). אחר כך בחרו אותו במדריך ← קול יפני.', en: 'Download a good Japanese voice: Settings → Accessibility → Spoken Content → Voices → Japanese → Kyoko (Enhanced) or O-ren (Premium). Then pick it in Guide → Japanese voice.' },
       { he: 'Google Translate: הורידו את חבילת היפנית לשימוש אופליין. מצלמת התרגום שם מעולה לתפריטים.', en: 'Google Translate: download the Japanese offline pack. Its camera mode is great for menus.' },
       { he: 'הוסיפו Suica לארנק של האייפון (Apple Wallet ← + ← כרטיס תחבורה).', en: 'Add a Suica to Apple Wallet (Wallet → + → Transit card).' },
       { he: 'התקינו את אפליקציית Safety tips (התרעות רעידת אדמה באנגלית).', en: 'Install the "Safety tips" app (earthquake alerts in English).' },

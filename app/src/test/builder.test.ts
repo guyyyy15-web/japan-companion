@@ -7,7 +7,8 @@ const KANA_ONLY = /^[぀-ゟ゠-ヿー]+$/
 const HEBREW = /[א-ת]/
 const TYPES: WordType[] = [
   'place', 'pointer-place', 'this', 'thing', 'food', 'drink', 'ingredient', 'body', 'belonging', 'usable',
-  'sight', 'fixture', 'rentable', 'amenity', 'vehicle', 'request', 'may-i', 'works', 'custom',
+  'sight', 'fixture', 'rentable', 'amenity', 'vehicle', 'request', 'may-i', 'works',
+  'city', 'allergen', 'event', 'person', 'custom',
 ]
 const HEADING_OF = (t: WordType) => (t === 'pointer-place' || t === 'this' ? 'type.pointer' : t === 'works' ? 'type.usable' : `type.${t}`)
 const byId = (id: string) => VOCAB.find((w) => w.id === id)!
@@ -98,6 +99,28 @@ describe('build', () => {
     expect(build(frame('broken'), byId('aircon')).ja).toBe('エアコンが壊れています')
     expect(build(frame('not-working'), byId('suica')).en).toBe("My Suica doesn't work")
     expect(build(frame('included'), byId('breakfast')).en).toBe('Is breakfast included?')
+  })
+
+  it('covers the v0.4 frames', () => {
+    expect(build(frame('walk'), byId('asakusa')).ja).toBe('浅草まで歩いて行けますか')
+    expect(build(frame('platform-for'), byId('kyoto')).ja).toBe('京都行きは何番線ですか')
+    expect(build(frame('platform-for'), byId('kyoto')).en).toBe('Which platform for trains to Kyoto?')
+    expect(build(frame('what-time'), byId('check-out-time')).ja).toBe('チェックアウトは何時ですか')
+    expect(build(frame('what-time'), byId('breakfast')).en).toBe('What time is breakfast?')
+    expect(build(frame('allergy'), byId('shrimp')).ja).toBe('えびアレルギーがあります')
+    expect(build(frame('allergy'), byId('peanuts')).he).toBe('יש לי אלרגיה לבוטנים')
+    expect(build(frame('please-do'), byId('do-slowly')).ja).toBe('ゆっくり話してください')
+    expect(build(frame('call'), byId('doctor')).ja).toBe('医者を呼んでください')
+    expect(build(frame('call'), byId('police')).en).toBe('Please call the police')
+    expect(build(frame('forgot'), byId('umbrella')).ja).toBe('傘を忘れました')
+    expect(build(frame('take-this'), byId('this')).ja).toBe('これにします')
+    expect(build(frame('where'), byId('tokyo-station')).en).toBe('Where is Tokyo Station?')
+  })
+
+  it('counts tickets with 枚 whatever the destination', () => {
+    const t = build(frame('ticket-to'), byId('kyoto'), 2)
+    expect(t.ja).toBe('京都までの切符を二枚お願いします')
+    expect(t.kana).toBe('きょうとまでのきっぷをにまいおねがいします')
   })
 
   it('uses the right counter', () => {

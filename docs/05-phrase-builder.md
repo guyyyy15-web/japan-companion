@@ -141,3 +141,45 @@ and forbid Hebrew prefix letters glued to definite nouns.
 - Save built sentences to ★ favorites ("Recent" covers most of this now).
 - Adjectives ("a bigger one", "cheaper").
 - Time slots ("at 7 o'clock", "tomorrow") for reservations.
+
+## v0.4: type-ahead, small screens, voice
+
+**Type-ahead.** The search box at the top matches free text in Hebrew, English,
+romaji or Japanese against *every* frame × word combination, and shows the best 8
+complete sentences (at most 3 per frame and 3 per word, so results stay varied).
+Frames carry `keywords` with synonyms ("השכרה להשכיר rent hire") so that
+"להשכיר אופניים" still finds "כמה עולה לשכור אופניים?". See `lib/suggest.ts`.
+
+**Small screens.** Frames sit in four group tabs (Around / Order / Requests /
+Problems) and a two-column grid, so nothing hides in a sideways-scrolling row.
+Picking a frame folds the grid into a one-line bar ("① Where is …? · Change ▾")
+so the words are right below. Words are one-line chips (label + small Japanese).
+The result card is compact and only appears once there's a sentence. The smoke
+test checks an iPhone SE (375×667): no sideways scroll on any tab, and every
+frame button fully on screen.
+
+**New frames (46 total):** can we walk to, which platform for, tickets ×n to
+(counted with 枚 whatever the destination), is … open today, what time is
+(check-out, last order, last train, breakfast…), we'll have …, is … spicy,
+I'm allergic to (a narrow `allergen` type), please … (〜てください), please call
+(doctor, ambulance, police, staff, taxi), I left my … behind, we need ….
+**New words (274 total):** cities, big stations and airports, izakaya, café,
+drugstore, laundromat, exchange, more food and drinks, medicines, hotel
+amenities, more rentals.
+
+## Voice
+
+The 🔊 buttons use the phone's own text-to-speech, which works offline:
+
+- **Speak the kanji text, not kana.** With kana only, engines can't find word
+  boundaries and read the particle は as "ha" instead of "wa". That was a big
+  part of the unnatural sound.
+- **Pick the best Japanese voice**, ranked Premium > Enhanced > Google >
+  compact (`voiceScore` in `lib/speech.ts`). Never fall back to a non-Japanese
+  voice. If there's no Japanese voice, show a warning pointing to Guide →
+  Japanese voice instead of reading Japanese in an English or Hebrew accent.
+- **🐢 slow** (rate 0.6) next to every 🔊, plus a default-speed setting.
+- **Guide → Japanese voice**: choose the voice (★★★ = Premium/Enhanced), the
+  speed, and a test sentence. On iPhone the natural-sounding voices must be
+  downloaded once: Settings → Accessibility → Spoken Content → Voices →
+  Japanese → Kyoko (Enhanced) or O-ren (Premium).

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { TabBar, type Tab } from './components/TabBar'
+import { Toast } from './components/Toast'
 import { PhrasesView } from './features/phrases/PhrasesView'
 import { BuilderView } from './features/builder/BuilderView'
 import { SignsView } from './features/signs/SignsView'
@@ -37,6 +38,7 @@ export function App() {
         {tab === 'guide' && <GuideView />}
       </main>
       <TabBar tab={tab} onChange={setTab} />
+      <Toast />
     </div>
   )
 }

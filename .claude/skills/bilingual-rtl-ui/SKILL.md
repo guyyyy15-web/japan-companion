@@ -47,3 +47,11 @@ description: Hebrew/English bilingual UI rules for Japan Companion — the i18n 
   bureaucratic Hebrew.
 - Japanese terms keep their common Israeli spelling: סואיקה, קונביני,
   אונסן, ין.
+
+## Small screens
+
+Design for a 375px-wide iPhone first. Never put choices the user must see in a
+sideways-scrolling row. Use a grid or wrapping chips instead (sideways rows
+are fine only for "recent" history). Keep option text around 0.85rem and
+touch targets at least 36–44px tall. Anything sticky at the bottom
+(result cards) stays under about a third of the screen.

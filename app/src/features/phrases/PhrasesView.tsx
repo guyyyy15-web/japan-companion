@@ -4,7 +4,7 @@ import { Chips } from '../../components/Chips'
 import { Ja } from '../../components/Ja'
 import { ShowCard, type CardContent } from '../../components/ShowCard'
 import { useI18n } from '../../i18n'
-import { canSpeak, speakJapanese } from '../../lib/speech'
+import { SpeakButtons } from '../../components/SpeakButtons'
 import { matches } from '../../lib/search'
 import { load, save } from '../../lib/storage'
 
@@ -57,9 +57,9 @@ export function PhrasesView() {
             <li key={l.id} className="card">
               <div className="row">
                 <Ja className="ja-line">{l.ja}</Ja>
-                {canSpeak() && (
-                  <button className="icon" aria-label={t('phrases.speak')} onClick={() => speakJapanese(l.kana)}>🔊</button>
-                )}
+                <div className="actions">
+                  <SpeakButtons text={l.ja} slowButton={false} />
+                </div>
               </div>
               <div className="romaji" dir="ltr">{l.romaji}</div>
               <div className="meaning">{pick(l)}</div>
@@ -90,9 +90,7 @@ export function PhrasesView() {
                   <span className="romaji" dir="ltr">{p.romaji}</span>
                 </div>
                 <div className="actions">
-                  {canSpeak() && (
-                    <button className="icon" aria-label={t('phrases.speak')} onClick={() => speakJapanese(p.kana)}>🔊</button>
-                  )}
+                  <SpeakButtons text={p.ja} />
                   <button
                     className="icon"
                     aria-label={t('phrases.show')}

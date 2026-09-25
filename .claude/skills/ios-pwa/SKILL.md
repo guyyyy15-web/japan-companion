@@ -42,17 +42,24 @@ rules.
 
 ## Japanese speech (speechSynthesis)
 
-- `speechSynthesis.getVoices()` is **empty on first call** on iOS. Listen
-  for `voiceschanged`, and also retry on first tap.
-- Pick a voice whose `lang` starts with `ja`. If there is none, still set
-  `utterance.lang = 'ja-JP'`, because iOS falls back to its default
-  Japanese voice when one is installed.
+All speech goes through `lib/speech.ts` and the `<SpeakButtons>` component.
+Never call `speechSynthesis` directly from a component.
+
+- **Speak `ja` (kanji), never `kana`.** Kana-only text loses word boundaries and
+  the particle は is read "ha". This was the "not Japanese-sounding" bug.
+- `speechSynthesis.getVoices()` is **empty on first call** on iOS, so read it on
+  every speak and listen for `voiceschanged` (also retry after 500 ms, since iOS
+  sometimes never fires it).
+- `pickVoice()` ranks Japanese voices (Premium > Enhanced > Google > compact,
+  local first) and honours the user's choice (`jc.voiceURI`). It **never** uses
+  a non-Japanese voice. With no Japanese voice, `speakJapanese` returns
+  `'no-voice'` and the UI shows a toast pointing to Guide → Japanese voice.
+- Normal rate 0.9, 🐢 slow 0.6; the default is stored in `jc.slowSpeech`.
 - Must be triggered by a user tap (no autoplay).
-- `rate = 0.85` is easier to follow for learners.
-- Offline works only if the voice is downloaded: Settings → Accessibility →
-  Spoken Content → Voices → Japanese. The setup checklist in the Guide tab
-  says so.
-- iOS silent switch: speechSynthesis still plays. That's fine.
+- Natural voices must be downloaded on the iPhone: Settings → Accessibility →
+  Spoken Content → Voices → Japanese → Kyoko (Enhanced) / O-ren (Premium).
+- The smoke test injects a fake `speechSynthesis` to assert the text, `ja-JP`,
+  the chosen voice and the slow rate.
 
 ## Show-card (full screen)
 
