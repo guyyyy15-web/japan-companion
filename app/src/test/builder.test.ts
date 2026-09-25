@@ -8,7 +8,8 @@ const HEBREW = /[א-ת]/
 const TYPES: WordType[] = [
   'place', 'pointer-place', 'this', 'thing', 'food', 'drink', 'ingredient', 'body', 'belonging', 'usable',
   'sight', 'fixture', 'rentable', 'amenity', 'vehicle', 'request', 'may-i', 'works',
-  'city', 'allergen', 'event', 'person', 'custom',
+  'city', 'allergen', 'event', 'person', 'game', 'electronic', 'fashion', 'cosmetic', 'size', 'adjective',
+  'machine', 'custom',
 ]
 const HEADING_OF = (t: WordType) => (t === 'pointer-place' || t === 'this' ? 'type.pointer' : t === 'works' ? 'type.usable' : `type.${t}`)
 const byId = (id: string) => VOCAB.find((w) => w.id === id)!
@@ -115,6 +116,23 @@ describe('build', () => {
     expect(build(frame('forgot'), byId('umbrella')).ja).toBe('傘を忘れました')
     expect(build(frame('take-this'), byId('this')).ja).toBe('これにします')
     expect(build(frame('where'), byId('tokyo-station')).en).toBe('Where is Tokyo Station?')
+  })
+
+  it('covers hobbies, second-hand shopping, prices and skincare (v0.5)', () => {
+    expect(build(frame('used'), byId('gameboy')).ja).toBe('ゲームボーイは中古ですか')
+    expect(build(frame('works-abroad'), byId('switch')).ja).toBe('ニンテンドースイッチは海外でも使えますか')
+    expect(build(frame('cheaper'), byId('this')).ja).toBe('これはもう少し安くなりますか')
+    expect(build(frame('cheaper'), byId('jacket')).he).toBe('אפשר קצת הנחה על הז\'קט?')
+    expect(build(frame('other-one'), byId('cheaper')).ja).toBe('もっと安いのはありますか')
+    expect(build(frame('other-one'), byId('cheaper')).en).toBe('Do you have a cheaper one?')
+    expect(build(frame('have'), byId('size-m')).ja).toBe('Mサイズはありますか')
+    expect(build(frame('popular'), byId('toner')).ja).toBe('一番人気の化粧水はどれですか')
+    expect(build(frame('sensitive-skin'), byId('sunscreen')).ja).toBe('日焼け止めは敏感肌でも使えますか')
+    expect(build(frame('how-to-use'), byId('crane-game')).ja).toBe('クレーンゲームの使い方を教えてください')
+    expect(build(frame('do-for-me'), byId('do-move-prize')).ja).toBe('景品の位置を直してもらえますか')
+    expect(build(frame('may-i'), byId('may-open-box')).ja).toBe('箱の中を見てもいいですか')
+    expect(build(frame('looking-for'), byId('vintage-item')).ja).toBe('古着を探しています')
+    expect(build(frame('how-get'), byId('akihabara')).en).toBe('How do we get to Akihabara?')
   })
 
   it('counts tickets with 枚 whatever the destination', () => {

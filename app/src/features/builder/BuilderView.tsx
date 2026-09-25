@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { PATTERNS, type Pattern, type PatternGroup, type WordType } from '../../content/patterns'
+import { Icon } from '../../components/Icon'
 import { Ja } from '../../components/Ja'
 import { ShowCard, type CardContent } from '../../components/ShowCard'
 import { SpeakButtons } from '../../components/SpeakButtons'
@@ -13,6 +14,7 @@ import { suggest } from '../../lib/suggest'
 const GROUPS: { id: PatternGroup; icon: string }[] = [
   { id: 'around', icon: '🧭' },
   { id: 'order', icon: '🍜' },
+  { id: 'shopping', icon: '🛍️' },
   { id: 'requests', icon: '🙏' },
   { id: 'problems', icon: '🆘' },
 ]
@@ -40,6 +42,13 @@ const HEADING: Record<Exclude<WordType, 'custom'>, Key> = {
   allergen: 'type.allergen',
   event: 'type.event',
   person: 'type.person',
+  game: 'type.game',
+  electronic: 'type.electronic',
+  fashion: 'type.fashion',
+  cosmetic: 'type.cosmetic',
+  size: 'type.size',
+  adjective: 'type.adjective',
+  machine: 'type.machine',
 }
 
 interface Recent {
@@ -293,7 +302,7 @@ export function BuilderView() {
               aria-label={t('phrases.show')}
               onClick={() => setCard({ ja: result.ja, kana: result.kana, romaji: result.romaji, meaning: lang === 'he' ? result.he : result.en })}
             >
-              🪧
+              <Icon name="card" size={20} />
             </button>
           </div>
         </section>

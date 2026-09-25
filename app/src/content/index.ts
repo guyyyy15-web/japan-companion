@@ -6,6 +6,8 @@ export const CATEGORIES = [
   'basics',
   'restaurant',
   'shopping',
+  'hobbies',
+  'beauty',
   'transport',
   'hotel',
   'sightseeing',

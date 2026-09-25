@@ -183,3 +183,19 @@ The 🔊 buttons use the phone's own text-to-speech, which works offline:
   speed, and a test sentence. On iPhone the natural-sounding voices must be
   downloaded once: Settings → Accessibility → Spoken Content → Voices →
   Japanese → Kyoko (Enhanced) or O-ren (Premium).
+
+## v0.5: hobbies, shopping, beauty
+
+A fifth group, **Shopping**, with 11 frames: most popular …, in stock,
+a cheaper/bigger/less-sweet one (`adjective`), discount on …, tax included,
+second-hand, brand new, works outside Japan (region/voltage), OK for sensitive
+skin, tester, how do I use … (machines, electronics, cosmetics).
+
+New word types: `game` (consoles, handhelds, Pokémon cards, figures, manga,
+records), `electronic`, `fashion` (incl. vintage clothes), `cosmetic` (toner,
+sheet masks, cleansing oil, sunscreen…), `size` (S/M/L/LL), `adjective`, and
+`machine` (crane game, purikura, change and ticket machines). Also hobby shops
+(arcade, vintage, used-game, record, anime, cosmetics), hobby districts
+(Akihabara, Nakano, Harajuku, Shimokitazawa, Koenji, Dotonbori…), famous sights, more
+food, drinks and souvenirs, plus arcade/shop verbs ("could you move the
+prize", "turn it on to test it", "may I look inside the box").

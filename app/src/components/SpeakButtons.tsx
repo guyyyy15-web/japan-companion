@@ -1,5 +1,6 @@
 import { useI18n } from '../i18n'
 import { canSpeak, speakJapanese } from '../lib/speech'
+import { Icon } from './Icon'
 import { showToast } from './Toast'
 
 /** 🔊 normal and 🐢 slow playback of a Japanese sentence (pass the kanji text). */
@@ -12,9 +13,9 @@ export function SpeakButtons({ text, slowButton = true }: { text: string; slowBu
   }
   return (
     <>
-      <button className="icon" aria-label={t('phrases.speak')} onClick={() => play()}>🔊</button>
+      <button className="icon" aria-label={t('phrases.speak')} onClick={() => play()}><Icon name="speaker" size={20} /></button>
       {slowButton && (
-        <button className="icon" aria-label={t('voice.slow')} onClick={() => play(true)}>🐢</button>
+        <button className="icon" aria-label={t('voice.slow')} onClick={() => play(true)}><span className="slow-glyph">🐢</span></button>
       )}
     </>
   )

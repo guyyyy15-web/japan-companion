@@ -24,9 +24,16 @@ export type WordType =
   | 'allergen'
   | 'event'
   | 'person'
+  | 'game'
+  | 'electronic'
+  | 'fashion'
+  | 'cosmetic'
+  | 'size'
+  | 'adjective'
+  | 'machine'
   | 'custom'
 
-export type PatternGroup = 'around' | 'order' | 'requests' | 'problems'
+export type PatternGroup = 'around' | 'order' | 'shopping' | 'requests' | 'problems'
 
 /**
  * A sentence frame. `{N}` is the noun; `{C}` the count (only with `count: true`).
@@ -51,7 +58,9 @@ export interface Pattern {
 }
 
 const PLACES: WordType[] = ['place', 'pointer-place', 'city', 'custom']
-const GOODS: WordType[] = ['food', 'drink', 'thing', 'this']
+const GOODS: WordType[] = ['food', 'drink', 'thing', 'this', 'game', 'electronic', 'fashion', 'cosmetic']
+/** Things you'd shop for in a store rather than order at a table. */
+const MERCH: WordType[] = ['this', 'thing', 'game', 'electronic', 'fashion', 'cosmetic']
 
 export const PATTERNS: Pattern[] = [
   {
@@ -184,7 +193,7 @@ export const PATTERNS: Pattern[] = [
     he: '{he} ×{n}, בבקשה', en: '{En} ×{n}, please',
   },
   {
-    id: 'have', group: 'order', accepts: GOODS,
+    id: 'have', group: 'order', accepts: [...GOODS, 'size'],
     label: { he: 'יש לכם …?', en: 'Do you have …?' },
     ja: '{N}はありますか', kana: '{N}はありますか', romaji: '{N} wa arimasu ka', he_pron: '{N} וה ארימאס קה',
     he: 'יש לכם {he}?', en: 'Do you have {a}?',
@@ -197,7 +206,7 @@ export const PATTERNS: Pattern[] = [
     he: 'מה המחיר של {he_def}?', en: 'How much is {the}?',
   },
   {
-    id: 'buy-where', group: 'order', accepts: ['thing', 'drink', 'this'],
+    id: 'buy-where', group: 'shopping', accepts: ['thing', 'drink', 'this', 'game', 'electronic', 'fashion', 'cosmetic'],
     label: { he: 'איפה קונים …?', en: 'Where can I buy …?' },
     ja: '{N}はどこで買えますか', kana: '{N}はどこでかえますか', romaji: '{N} wa doko de kaemasu ka', he_pron: '{N} וה דוקו דה קאאמאס קה',
     he: 'איפה אפשר לקנות {he}?', en: 'Where can I buy {a}?',
@@ -234,7 +243,7 @@ export const PATTERNS: Pattern[] = [
     he: 'תוכלו להראות לי את {he_def}?', en: 'Could you show me {the}?',
   },
   {
-    id: 'recommend', group: 'order', accepts: ['food', 'drink', 'sight'],
+    id: 'recommend', group: 'order', accepts: ['food', 'drink', 'sight', 'cosmetic', 'game'],
     label: { he: 'המלצה על …?', en: 'Any … you recommend?' },
     ja: 'おすすめの{N}はありますか', kana: 'おすすめの{N}はありますか', romaji: 'osusume no {N} wa arimasu ka', he_pron: 'אוסוסומה נו {N} וה ארימאס קה',
     he: 'יש לכם המלצה על {he}?', en: 'Is there {a} you recommend?',
@@ -281,6 +290,84 @@ export const PATTERNS: Pattern[] = [
   },
 
   {
+    id: 'popular', group: 'shopping', accepts: ['food', 'drink', 'thing', 'game', 'fashion', 'cosmetic'],
+    keywords: 'popular best seller famous פופולרי נמכר',
+    label: { he: 'איזה … הכי פופולרי?', en: 'Most popular …?' },
+    ja: '一番人気の{N}はどれですか', kana: 'いちばんにんきの{N}はどれですか', romaji: 'ichiban ninki no {N} wa dore desu ka', he_pron: 'איצ\'יבאן נינקי נו {N} וה דורה דס קה',
+    he: 'איזה {he} הכי פופולרי כאן?', en: 'Which {en} is the most popular?',
+  },
+  {
+    id: 'in-stock', group: 'shopping', accepts: MERCH,
+    keywords: 'stock available מלאי',
+    label: { he: 'יש … במלאי?', en: 'Is … in stock?' },
+    ja: '{N}の在庫はありますか', kana: '{N}のざいこはありますか', romaji: '{N} no zaiko wa arimasu ka', he_pron: '{N} נו זאיקו וה ארימאס קה',
+    he: 'יש {he} במלאי?', en: 'Do you have {a} in stock?',
+  },
+  {
+    id: 'other-one', group: 'shopping', accepts: ['adjective'],
+    keywords: 'another different other one עוד אחר משהו',
+    label: { he: 'יש משהו …?', en: 'Do you have a … one?' },
+    ja: 'もっと{N}のはありますか', kana: 'もっと{N}のはありますか', romaji: 'motto {N} no wa arimasu ka', he_pron: 'מוטו {N} נו וה ארימאס קה',
+    he: 'יש משהו {he}?', en: 'Do you have a {en} one?',
+  },
+  {
+    id: 'cheaper', group: 'shopping', accepts: MERCH,
+    keywords: 'discount cheaper bargain price הנחה זול מחיר',
+    label: { he: 'אפשר הנחה על …?', en: 'Discount on …?' },
+    ja: '{N}はもう少し安くなりますか', kana: '{N}はもうすこしやすくなりますか', romaji: '{N} wa mou sukoshi yasuku narimasu ka', he_pron: '{N} וה מו סוקושי יאסוקו נארימאס קה',
+    he: 'אפשר קצת הנחה על {he_def}?', en: 'Could {the} be a little cheaper?',
+  },
+  {
+    id: 'tax-included', group: 'shopping', accepts: MERCH,
+    keywords: 'tax price included מס מחיר כולל',
+    label: { he: 'המחיר של … כולל מס?', en: 'Is tax included for …?' },
+    ja: '{N}は税込みですか', kana: '{N}はぜいこみですか', romaji: '{N} wa zeikomi desu ka', he_pron: '{N} וה זייקומי דס קה',
+    he: 'המחיר של {he_def} כולל מס?', en: 'Does the price of {the} include tax?',
+  },
+  {
+    id: 'used', group: 'shopping', accepts: ['this', 'game', 'electronic', 'fashion'],
+    keywords: 'used second hand pre-owned vintage משומש יד שנייה',
+    label: { he: '… יד שנייה?', en: 'Is … second-hand?' },
+    ja: '{N}は中古ですか', kana: '{N}はちゅうこですか', romaji: '{N} wa chuuko desu ka', he_pron: '{N} וה צ\'וקו דס קה',
+    he: '{he_def} – יד שנייה?', en: 'Is {the} second-hand?',
+  },
+  {
+    id: 'brand-new', group: 'shopping', accepts: ['this', 'game', 'electronic', 'fashion'],
+    keywords: 'new unused sealed חדש באריזה',
+    label: { he: '… חדש באריזה?', en: 'Is … brand new?' },
+    ja: '{N}は新品ですか', kana: '{N}はしんぴんですか', romaji: '{N} wa shinpin desu ka', he_pron: '{N} וה שינפין דס קה',
+    he: '{he_def} – חדש באריזה?', en: 'Is {the} brand new?',
+  },
+  {
+    id: 'works-abroad', group: 'shopping', accepts: ['electronic', 'game'],
+    keywords: 'abroad overseas region voltage israel חול ישראל מתח',
+    label: { he: '… עובד גם בחו״ל?', en: 'Does … work outside Japan?' },
+    ja: '{N}は海外でも使えますか', kana: '{N}はかいがいでもつかえますか', romaji: '{N} wa kaigai demo tsukaemasu ka', he_pron: '{N} וה קאיגאי דמו צוקאאמאס קה',
+    he: 'אפשר להשתמש ב{he} גם מחוץ ליפן?', en: 'Does {the} work outside Japan?',
+  },
+  {
+    id: 'sensitive-skin', group: 'shopping', accepts: ['cosmetic'],
+    keywords: 'skin sensitive עור רגיש',
+    label: { he: '… מתאים לעור רגיש?', en: '… for sensitive skin?' },
+    ja: '{N}は敏感肌でも使えますか', kana: '{N}はびんかんはだでもつかえますか', romaji: '{N} wa binkanhada demo tsukaemasu ka', he_pron: '{N} וה בינקאנהאדה דמו צוקאאמאס קה',
+    he: 'אפשר להשתמש ב{he} עם עור רגיש?', en: 'Is {the} OK for sensitive skin?',
+  },
+  {
+    id: 'tester', group: 'shopping', accepts: ['cosmetic'],
+    keywords: 'tester try sample טסטר דוגמית לנסות',
+    label: { he: 'יש טסטר של …?', en: 'Is there a tester for …?' },
+    ja: '{N}のテスターはありますか', kana: '{N}のテスターはありますか', romaji: '{N} no tesutaa wa arimasu ka', he_pron: '{N} נו טסוטה וה ארימאס קה',
+    he: 'יש טסטר של {he}?', en: 'Is there a tester for {the}?',
+  },
+  {
+    id: 'how-to-use', group: 'shopping', accepts: ['machine', 'cosmetic', 'electronic'],
+    keywords: 'how to use explain instructions איך משתמשים להסביר',
+    label: { he: 'איך משתמשים ב…?', en: 'How do I use …?' },
+    ja: '{N}の使い方を教えてください', kana: '{N}のつかいかたをおしえてください', romaji: '{N} no tsukaikata o oshiete kudasai', he_pron: '{N} נו צוקאיקאטה או אושיאטה קודאסאי',
+    he: 'תוכלו להסביר איך משתמשים ב{he}?', en: 'Could you show me how to use {the}?',
+  },
+
+  {
     id: 'do-for-me', group: 'requests',
     keywords: 'can you could you please help בקשה יכולים תוכלו', accepts: ['request'],
     label: { he: 'תוכלו …?', en: 'Could you …?' },
@@ -309,7 +396,7 @@ export const PATTERNS: Pattern[] = [
   },
 
   {
-    id: 'looking-for', group: 'problems', accepts: ['place', 'thing', 'custom'],
+    id: 'looking-for', group: 'shopping', accepts: ['place', 'thing', 'custom', 'game', 'electronic', 'fashion', 'cosmetic'],
     label: { he: 'אנחנו מחפשים …', en: "We're looking for …" },
     ja: '{N}を探しています', kana: '{N}をさがしています', romaji: '{N} o sagashite imasu', he_pron: '{N} או סאגאשיטה אימאס',
     he: 'אנחנו מחפשים {he}', en: "We're looking for {a}",
@@ -330,14 +417,14 @@ export const PATTERNS: Pattern[] = [
   },
   {
     id: 'broken', group: 'problems',
-    keywords: 'broken fix repair problem תקלה מקולקל שבור לתקן', accepts: ['fixture'],
+    keywords: 'broken fix repair problem תקלה מקולקל שבור לתקן', accepts: ['fixture', 'machine'],
     label: { he: 'יש תקלה ב…', en: '… is broken' },
     ja: '{N}が壊れています', kana: '{N}がこわれています', romaji: '{N} ga kowarete imasu', he_pron: '{N} גה קווארטה אימאס',
     he: 'יש תקלה ב{he}', en: '{The} is broken',
   },
   {
     id: 'not-working', group: 'problems',
-    keywords: 'not working broken problem לא עובד תקלה', accepts: ['fixture', 'works'],
+    keywords: 'not working broken problem לא עובד תקלה', accepts: ['fixture', 'works', 'machine'],
     label: { he: 'לא מצליחים להשתמש ב…', en: "… doesn't work" },
     ja: '{N}が使えません', kana: '{N}がつかえません', romaji: '{N} ga tsukaemasen', he_pron: '{N} גה צוקאאמאסן',
     he: 'לא מצליחים להשתמש ב{he}', en: "{The} doesn't work",
@@ -349,7 +436,7 @@ export const PATTERNS: Pattern[] = [
     he: 'שכחתי את {he_def}', en: 'I left my {en} behind',
   },
   {
-    id: 'need', group: 'problems', accepts: ['thing', 'amenity'],
+    id: 'need', group: 'problems', accepts: ['thing', 'amenity', 'cosmetic', 'electronic'],
     label: { he: 'אנחנו צריכים …', en: 'We need …' },
     ja: '{N}が必要です', kana: '{N}がひつようです', romaji: '{N} ga hitsuyou desu', he_pron: '{N} גה היצויו דס',
     he: 'אנחנו צריכים {he}', en: 'We need {a}',

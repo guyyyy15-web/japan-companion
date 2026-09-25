@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { CATEGORIES, listening, phrases, type Category, type Phrase } from '../../content'
 import { Chips } from '../../components/Chips'
+import { Icon } from '../../components/Icon'
 import { Ja } from '../../components/Ja'
 import { ShowCard, type CardContent } from '../../components/ShowCard'
 import { useI18n } from '../../i18n'
@@ -96,7 +97,7 @@ export function PhrasesView() {
                     aria-label={t('phrases.show')}
                     onClick={() => setCard({ ja: p.ja, kana: p.kana, romaji: p.romaji, meaning: pick(p) })}
                   >
-                    🪧
+                    <Icon name="card" size={20} />
                   </button>
                   <button
                     className={fav ? 'icon fav on' : 'icon fav'}
