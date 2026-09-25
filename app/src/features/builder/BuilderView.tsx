@@ -49,6 +49,8 @@ const HEADING: Record<Exclude<WordType, 'custom'>, Key> = {
   size: 'type.size',
   adjective: 'type.adjective',
   machine: 'type.machine',
+  craft: 'type.craft',
+  borrowable: 'type.borrowable',
 }
 
 interface Recent {
@@ -59,6 +61,8 @@ interface Recent {
 const RECENT_KEY = 'jc.builderRecent'
 const MAX_RECENT = 8
 const WORD_FILTER_MIN = 16
+/** Words shown per group before "+N more", so long lists don't flood a phone screen. */
+const GROUP_PREVIEW = 12
 
 function resolveWord(ref: string): Word | undefined {
   return ref.startsWith('custom:') ? customWord(ref.slice(7)) : VOCAB.find((v) => v.id === ref)
@@ -77,6 +81,7 @@ export function BuilderView() {
   const [card, setCard] = useState<CardContent | null>(null)
   // The frame grid folds into a one-line bar once a frame is picked, so the words sit right below.
   const [framesOpen, setFramesOpen] = useState(true)
+  const [expanded, setExpanded] = useState<Key[]>([])
 
   const remember = (p: Pattern, w: Word, n: number) => {
     const entry: Recent = { p: p.id, w: w.id === 'custom' ? `custom:${w.ja}` : w.id, n }
@@ -91,6 +96,7 @@ export function BuilderView() {
     setWord(w)
     setCount(n)
     setWordFilter('')
+    if (p.id !== pattern.id) setExpanded([])
     if (w) remember(p, w, n)
   }
 
@@ -232,24 +238,37 @@ export function BuilderView() {
                 onChange={(e) => setWordFilter(e.target.value)}
               />
             )}
-            {sections.map(([heading, words]) => (
-              <div key={heading} className="word-group">
-                <div className="group-title">{t(heading)}</div>
-                <div className="words">
-                  {words.map((w) => (
-                    <button
-                      key={w.id}
-                      className={word?.id === w.id ? 'word active' : 'word'}
-                      aria-pressed={word?.id === w.id}
-                      onClick={() => choose(pattern, w, count)}
-                    >
-                      {lang === 'he' ? w.he : w.en}
-                      <Ja className="word-ja">{w.ja}</Ja>
-                    </button>
-                  ))}
+            {sections.map(([heading, words]) => {
+              const open = expanded.includes(heading) || wordFilter.trim() !== ''
+              // Keep the chosen word visible even when its group is folded.
+              const shown = open
+                ? words
+                : [...words.slice(0, GROUP_PREVIEW), ...words.slice(GROUP_PREVIEW).filter((w) => w.id === word?.id)]
+              const hidden = words.length - shown.length
+              return (
+                <div key={heading} className="word-group">
+                  <div className="group-title">{t(heading)}</div>
+                  <div className="words">
+                    {shown.map((w) => (
+                      <button
+                        key={w.id}
+                        className={word?.id === w.id ? 'word active' : 'word'}
+                        aria-pressed={word?.id === w.id}
+                        onClick={() => choose(pattern, w, count)}
+                      >
+                        {lang === 'he' ? w.he : w.en}
+                        <Ja className="word-ja">{w.ja}</Ja>
+                      </button>
+                    ))}
+                    {hidden > 0 && (
+                      <button className="word more" onClick={() => setExpanded([...expanded, heading])}>
+                        {t('builder.more', { n: String(hidden) })}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
             {sections.length === 0 && <p className="empty">{t('phrases.noResults')}</p>}
 
             {allowsCustom && (

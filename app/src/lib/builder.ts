@@ -73,7 +73,8 @@ export function customWord(text: string): Word {
 }
 
 export function fits(pattern: Pattern, word: Word): boolean {
-  return word.types.some((t) => pattern.accepts.includes(t))
+  if (pattern.exclude?.includes(word.id)) return false
+  return pattern.include?.includes(word.id) || word.types.some((t) => pattern.accepts.includes(t))
 }
 
 export function wordsFor(pattern: Pattern): Word[] {

@@ -199,3 +199,27 @@ sheet masks, cleansing oil, sunscreen…), `size` (S/M/L/LL), `adjective`, and
 (Akihabara, Nakano, Harajuku, Shimokitazawa, Koenji, Dotonbori…), famous sights, more
 food, drinks and souvenirs, plus arcade/shop verbs ("could you move the
 prize", "turn it on to test it", "may I look inside the box").
+
+## v0.6: only sensible sentences
+
+Types alone let nonsense through ("Where can I buy an English menu?", "Is ice
+cream spicy?", "Does a vinyl record work outside Japan?", "Taxi to the toilet",
+"Do you know Tokyo?"). Every frame × word list was reviewed by hand. A frame can
+now carry:
+
+- `exclude`: word ids that have an accepted type but make no sense in this frame.
+  Shared groups live at the top of `patterns.ts`: `SPOTS` (toilet, exit,
+  lockers…), `REGIONS` (whole cities), `AIRPORTS`, `SHOPS`, `NO_HOURS`,
+  `SERVICE_ITEMS` (menu, oshibori, receipt…), `SUPPLIES`, `SWEETS`,
+  `PLAIN_FOODS`, `PLAIN_DRINKS`, `UNPLUGGED` (cards, manga, records…).
+- `include`: single words accepted without their whole type (e.g. only "this",
+  not "that one over there", in "Do you know …?").
+
+New types: `craft` (souvenirs and crafts) and `borrowable`, with a new
+**"Can we borrow …?"** frame (umbrella, charger, adapter, hair dryer…).
+
+Result: 3,725 → 3,056 combinations, all sensible. `builder.test.ts` pins about 35
+nonsense pairs as impossible and about 25 useful ones as available.
+
+On screen, each word group shows 12 words and a "+N more" button, so long lists
+(e.g. "…, please") don't flood the phone.

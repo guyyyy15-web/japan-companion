@@ -107,6 +107,11 @@ await page.click('.stepper button:has-text("+")')
 const tickets = await resultJa()
 check(tickets === '切符を二枚お願いします', `builder: tickets × 2 → ${tickets}`)
 await page.screenshot({ path: `${OUT}he-builder-count.png` })
+// Long word groups start folded; "+N more" opens them.
+const before = await page.$$eval('.word:not(.more)', (els) => els.length)
+await page.click('.word.more >> nth=0')
+const after = await page.$$eval('.word:not(.more)', (els) => els.length)
+check(after > before, `builder: "+N more" expands a word group (${before} → ${after})`)
 
 await pickFrame('בקשות', 'תוכלו …?')
 await page.click('.word:has-text("לחמם את זה")')

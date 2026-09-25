@@ -116,6 +116,13 @@ to prevent **nonsense**, and that's what types do.
   te-form carefully: う/つ/る → って, む/ぶ/ぬ → んで, く → いて, ぐ → いで,
   す → して, and 行く → 行って. `he` is a Hebrew infinitive ("לחמם את
   זה") because the frames are "תוכלו …?" and "אפשר …?".
+- **Sense check every frame × word, not just the types.** A type admits whole
+  families ("thing" includes the English menu, so "Where can I buy an English
+  menu?" slipped in). Use the frame's `exclude` list (and the shared groups at the
+  top of `patterns.ts`: `SPOTS`, `REGIONS`, `SERVICE_ITEMS`, `SWEETS`,
+  `UNPLUGGED`…) or `include` for single words. When adding words, dump every
+  frame's list and read it. Add clear nonsense and clear keepers to the `sense`
+  test in `builder.test.ts`.
 - Watch for frames where one type contains a word that turns the sentence
   into nonsense (現金が使えません). Split off a narrower type (`works`)
   rather than accepting a broad one.

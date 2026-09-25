@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { build, customWord, PATTERNS, VOCAB, wordsFor } from '../lib/builder'
+import { build, customWord, fits, PATTERNS, VOCAB, wordsFor } from '../lib/builder'
 import type { WordType } from '../content/patterns'
 import { en } from '../i18n/en'
 
@@ -9,7 +9,7 @@ const TYPES: WordType[] = [
   'place', 'pointer-place', 'this', 'thing', 'food', 'drink', 'ingredient', 'body', 'belonging', 'usable',
   'sight', 'fixture', 'rentable', 'amenity', 'vehicle', 'request', 'may-i', 'works',
   'city', 'allergen', 'event', 'person', 'game', 'electronic', 'fashion', 'cosmetic', 'size', 'adjective',
-  'machine', 'custom',
+  'machine', 'craft', 'borrowable', 'custom',
 ]
 const HEADING_OF = (t: WordType) => (t === 'pointer-place' || t === 'this' ? 'type.pointer' : t === 'works' ? 'type.usable' : `type.${t}`)
 const byId = (id: string) => VOCAB.find((w) => w.id === id)!
@@ -53,6 +53,88 @@ describe('frames', () => {
     for (const p of PATTERNS)
       for (const t of p.accepts.filter((x) => x !== 'custom'))
         expect(Object.keys(en), `${p.id}/${t}`).toContain(HEADING_OF(t))
+  })
+})
+
+describe('sense', () => {
+  const ok = (f: string, w: string) => fits(frame(f), byId(w))
+
+  it('rules out sentences nobody would say', () => {
+    const nonsense: [string, string][] = [
+      ['buy-where', 'english-menu'], // where can I buy an English menu?
+      ['buy-where', 'receipt'],
+      ['how-much', 'oshibori'],
+      ['spicy', 'ice-cream'],
+      ['spicy', 'parfait'],
+      ['works-abroad', 'record'],
+      ['works-abroad', 'manga'],
+      ['taxi', 'toilet'],
+      ['taxi', 'kyoto'],
+      ['opens', 'station'],
+      ['opens', 'toilet'],
+      ['closes', 'konbini'],
+      ['know', 'toilet'],
+      ['know', 'restaurant'],
+      ['walk', 'osaka'],
+      ['walk', 'narita'],
+      ['does-this-go', 'konbini'],
+      ['used', 'socks'],
+      ['cheaper', 'stamp'],
+      ['cheaper', 'plastic-bag'],
+      ['need', 'switch'],
+      ['need', 'lipstick'],
+      ['can-i-have', 'kitchen-knife'],
+      ['popular', 'receipt'],
+      ['popular', 'water'],
+      ['in-stock', 'chopsticks'],
+      ['take-this', 'oshibori'],
+      ['included', 'pillow'],
+      ['contains', 'ice'],
+      ['where', 'osaka'],
+      ['not-working', 'umbrella'],
+      ['how-to-use', 'batteries'],
+      ['know', 'tokyo'],
+      ['cheaper', 'socks'],
+      ['need', 'credit-card'],
+    ]
+    for (const [f, w] of nonsense) expect(ok(f, w), `${f} + ${w}`).toBe(false)
+  })
+
+  it('keeps the sentences people really need', () => {
+    const sensible: [string, string][] = [
+      ['buy-where', 'sim'],
+      ['buy-where', 'ticket'],
+      ['how-much', 'plastic-bag'], // bags cost a few yen at the till
+      ['can-i-have', 'english-menu'],
+      ['can-i-have', 'oshibori'],
+      ['spicy', 'ramen'],
+      ['spicy', 'this'],
+      ['works-abroad', 'switch'],
+      ['works-abroad', 'rice-cooker'],
+      ['taxi', 'kyoto-station'],
+      ['taxi', 'this-address'],
+      ['opens', 'museum'],
+      ['know', 'this-address'],
+      ['know', 'this'],
+      ['know', 'kiyomizu'],
+      ['walk', 'asakusa'],
+      ['does-this-go', 'narita'],
+      ['used', 'gameboy'],
+      ['cheaper', 'jacket'],
+      ['cheaper', 'kitchen-knife'],
+      ['need', 'adapter'],
+      ['borrow', 'umbrella'],
+      ['borrow', 'charger'],
+      ['where', 'toilet'],
+      ['where', 'tokyo-station'],
+      ['go-to', 'toilet'],
+    ]
+    for (const [f, w] of sensible) expect(ok(f, w), `${f} + ${w}`).toBe(true)
+  })
+
+  it('never offers a pointer where it cannot point', () => {
+    expect(ok('know', 'over-there')).toBe(false)
+    expect(ok('where', 'here')).toBe(false)
   })
 })
 
@@ -133,6 +215,8 @@ describe('build', () => {
     expect(build(frame('may-i'), byId('may-open-box')).ja).toBe('箱の中を見てもいいですか')
     expect(build(frame('looking-for'), byId('vintage-item')).ja).toBe('古着を探しています')
     expect(build(frame('how-get'), byId('akihabara')).en).toBe('How do we get to Akihabara?')
+    expect(build(frame('borrow'), byId('umbrella')).ja).toBe('傘を借りられますか')
+    expect(build(frame('borrow'), byId('umbrella')).he).toBe('אפשר לשאול מטרייה?')
   })
 
   it('counts tickets with 枚 whatever the destination', () => {
