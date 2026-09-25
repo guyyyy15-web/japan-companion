@@ -20,6 +20,10 @@ export type WordType =
   | 'request'
   | 'may-i'
   | 'works'
+  | 'city'
+  | 'allergen'
+  | 'event'
+  | 'person'
   | 'custom'
 
 export type PatternGroup = 'around' | 'order' | 'requests' | 'problems'
@@ -33,7 +37,11 @@ export interface Pattern {
   group: PatternGroup
   accepts: WordType[]
   count?: boolean
+  /** Counter for {C} when the frame, not the word, decides it (tickets to a city). */
+  counter?: 'tsu' | 'mai'
   label: Bi
+  /** Extra search words (synonyms in both languages) for the type-ahead. */
+  keywords?: string
   ja: string
   kana: string
   romaji: string
@@ -42,12 +50,13 @@ export interface Pattern {
   en: string
 }
 
-const PLACES: WordType[] = ['place', 'pointer-place', 'custom']
+const PLACES: WordType[] = ['place', 'pointer-place', 'city', 'custom']
 const GOODS: WordType[] = ['food', 'drink', 'thing', 'this']
 
 export const PATTERNS: Pattern[] = [
   {
-    id: 'where', group: 'around', accepts: ['place', 'custom'],
+    id: 'where', group: 'around',
+    keywords: 'find location where מיקום איפה נמצא', accepts: ['place', 'city', 'custom'],
     label: { he: 'איפה …?', en: 'Where is …?' },
     ja: '{N}はどこですか', kana: '{N}はどこですか', romaji: '{N} wa doko desu ka', he_pron: '{N} וה דוקו דס קה',
     he: 'איפה {he_def}?', en: 'Where is {the}?',
@@ -65,13 +74,15 @@ export const PATTERNS: Pattern[] = [
     he: 'אנחנו רוצים להגיע אל {he_def}', en: 'We want to go to {the}',
   },
   {
-    id: 'how-get', group: 'around', accepts: PLACES,
+    id: 'how-get', group: 'around',
+    keywords: 'directions way route get to כיוונים דרך להגיע', accepts: PLACES,
     label: { he: 'איך מגיעים עד …?', en: 'How do we get to …?' },
     ja: '{N}までどうやって行けばいいですか', kana: '{N}までどうやっていけばいいですか', romaji: '{N} made dou yatte ikeba ii desu ka', he_pron: '{N} מאדה דו יאטה איקבה אי דס קה',
     he: 'איך מגיעים עד {he_def}?', en: 'How do we get to {the}?',
   },
   {
-    id: 'taxi', group: 'around', accepts: PLACES,
+    id: 'taxi', group: 'around',
+    keywords: 'taxi cab drive מונית נהג', accepts: PLACES,
     label: { he: 'עד …, בבקשה (מונית)', en: 'To …, please (taxi)' },
     ja: '{N}までお願いします', kana: '{N}までおねがいします', romaji: '{N} made onegaishimasu', he_pron: '{N} מאדה אונגאי שימאס',
     he: 'עד {he_def}, בבקשה', en: 'To {the}, please',
@@ -127,7 +138,41 @@ export const PATTERNS: Pattern[] = [
   },
 
   {
-    id: 'please', group: 'order', accepts: GOODS,
+    id: 'walk', group: 'around', accepts: [...PLACES, 'sight'],
+    label: { he: 'אפשר ללכת ברגל עד …?', en: 'Can we walk to …?' },
+    ja: '{N}まで歩いて行けますか', kana: '{N}まであるいていけますか', romaji: '{N} made aruite ikemasu ka', he_pron: '{N} מאדה אארויטה איקמאס קה',
+    he: 'אפשר ללכת ברגל עד {he_def}?', en: 'Can we walk to {the}?',
+  },
+  {
+    id: 'platform-for', group: 'around', accepts: ['city', 'custom'],
+    label: { he: 'מאיזה רציף לכיוון …?', en: 'Which platform for …?' },
+    ja: '{N}行きは何番線ですか', kana: '{N}いきはなんばんせんですか', romaji: '{N} iki wa nanbansen desu ka', he_pron: '{N} איקי וה נאנבאנסן דס קה',
+    he: 'מאיזה רציף יוצאים לכיוון {he_def}?', en: 'Which platform for trains to {the}?',
+  },
+  {
+    id: 'ticket-to', group: 'around',
+    keywords: 'ticket train buy כרטיס רכבת לקנות', accepts: ['city', 'custom'], count: true, counter: 'mai',
+    label: { he: 'כרטיס עד …', en: 'Ticket to …' },
+    ja: '{N}までの切符を{C}お願いします', kana: '{N}までのきっぷを{C}おねがいします', romaji: '{N} made no kippu o {C} onegaishimasu', he_pron: '{N} מאדה נו קיפו או {C} אונגאי שימאס',
+    he: 'כרטיס ×{n} עד {he_def}, בבקשה', en: 'Tickets ×{n} to {the}, please',
+  },
+  {
+    id: 'open-today', group: 'around', accepts: ['place', 'sight', 'custom'],
+    label: { he: '… פתוח היום?', en: 'Is … open today?' },
+    ja: '{N}は今日開いていますか', kana: '{N}はきょうあいていますか', romaji: '{N} wa kyou aite imasu ka', he_pron: '{N} וה קיו אאיטה אימאס קה',
+    he: '{he_def} – פתוח היום?', en: 'Is {the} open today?',
+  },
+  {
+    id: 'what-time', group: 'around',
+    keywords: 'time when hour שעה מתי', accepts: ['event'],
+    label: { he: 'באיזו שעה …?', en: 'What time is …?' },
+    ja: '{N}は何時ですか', kana: '{N}はなんじですか', romaji: '{N} wa nanji desu ka', he_pron: '{N} וה נאנג\'י דס קה',
+    he: 'באיזו שעה {he_def}?', en: 'What time is {the}?',
+  },
+
+  {
+    id: 'please', group: 'order',
+    keywords: 'order want give me הזמנה רוצה תנו', accepts: GOODS,
     label: { he: '…, בבקשה', en: '…, please' },
     ja: '{N}をお願いします', kana: '{N}をおねがいします', romaji: '{N} o onegaishimasu', he_pron: '{N} או אונגאי שימאס',
     he: '{he}, בבקשה', en: '{En}, please',
@@ -145,7 +190,8 @@ export const PATTERNS: Pattern[] = [
     he: 'יש לכם {he}?', en: 'Do you have {a}?',
   },
   {
-    id: 'how-much', group: 'order', accepts: GOODS,
+    id: 'how-much', group: 'order',
+    keywords: 'price cost how much מחיר עולה עלות כמה', accepts: GOODS,
     label: { he: 'כמה עולה …?', en: 'How much is …?' },
     ja: '{N}はいくらですか', kana: '{N}はいくらですか', romaji: '{N} wa ikura desu ka', he_pron: '{N} וה איקורה דס קה',
     he: 'מה המחיר של {he_def}?', en: 'How much is {the}?',
@@ -194,13 +240,15 @@ export const PATTERNS: Pattern[] = [
     he: 'יש לכם המלצה על {he}?', en: 'Is there {a} you recommend?',
   },
   {
-    id: 'rent-price', group: 'order', accepts: ['rentable'],
+    id: 'rent-price', group: 'order',
+    keywords: 'rent rental hire price השכרה להשכיר שכירות מחיר', accepts: ['rentable'],
     label: { he: 'כמה עולה לשכור …?', en: 'How much to rent …?' },
     ja: '{N}のレンタルはいくらですか', kana: '{N}のレンタルはいくらですか', romaji: '{N} no rentaru wa ikura desu ka', he_pron: '{N} נו רנטארו וה איקורה דס קה',
     he: 'כמה עולה לשכור {he}?', en: 'How much is it to rent {a}?',
   },
   {
-    id: 'rent-where', group: 'order', accepts: ['rentable'],
+    id: 'rent-where', group: 'order',
+    keywords: 'rent rental hire השכרה להשכיר שכירות', accepts: ['rentable'],
     label: { he: 'איפה אפשר לשכור …?', en: 'Where can I rent …?' },
     ja: '{N}はどこで借りられますか', kana: '{N}はどこでかりられますか', romaji: '{N} wa doko de kariraremasu ka', he_pron: '{N} וה דוקו דה קארירארמאס קה',
     he: 'איפה אפשר לשכור {he}?', en: 'Where can I rent {a}?',
@@ -213,16 +261,51 @@ export const PATTERNS: Pattern[] = [
   },
 
   {
-    id: 'do-for-me', group: 'requests', accepts: ['request'],
+    id: 'take-this', group: 'order', accepts: GOODS,
+    label: { he: 'ניקח …', en: "We'll have …" },
+    ja: '{N}にします', kana: '{N}にします', romaji: '{N} ni shimasu', he_pron: '{N} ני שימאס',
+    he: 'ניקח {he}', en: "We'll have {a}",
+  },
+  {
+    id: 'spicy', group: 'order', accepts: ['food', 'this'],
+    label: { he: '… חריף?', en: 'Is … spicy?' },
+    ja: '{N}は辛いですか', kana: '{N}はからいですか', romaji: '{N} wa karai desu ka', he_pron: '{N} וה קאראי דס קה',
+    he: '{he_def} חריף?', en: 'Is {the} spicy?',
+  },
+  {
+    id: 'allergy', group: 'order',
+    keywords: 'allergy allergic אלרגיה אלרגי', accepts: ['allergen'],
+    label: { he: 'יש לי אלרגיה ל…', en: "I'm allergic to …" },
+    ja: '{N}アレルギーがあります', kana: '{N}アレルギーがあります', romaji: '{N} arerugii ga arimasu', he_pron: '{N} ארורגי גה ארימאס',
+    he: 'יש לי אלרגיה ל{he}', en: "I'm allergic to {en}",
+  },
+
+  {
+    id: 'do-for-me', group: 'requests',
+    keywords: 'can you could you please help בקשה יכולים תוכלו', accepts: ['request'],
     label: { he: 'תוכלו …?', en: 'Could you …?' },
     ja: '{N}もらえますか', kana: '{N}もらえますか', romaji: '{N} moraemasu ka', he_pron: '{N} מוראאמאס קה',
     he: 'תוכלו {he}?', en: 'Could you {en}?',
   },
   {
-    id: 'may-i', group: 'requests', accepts: ['may-i'],
+    id: 'may-i', group: 'requests',
+    keywords: 'can i may i allowed permission מותר אפשר רשות', accepts: ['may-i'],
     label: { he: 'אפשר …?', en: 'May I …?' },
     ja: '{N}もいいですか', kana: '{N}もいいですか', romaji: '{N} mo ii desu ka', he_pron: '{N} מו אי דס קה',
     he: 'אפשר {he}?', en: 'May I {en}?',
+  },
+
+  {
+    id: 'please-do', group: 'requests', accepts: ['request'],
+    label: { he: '…, בבקשה', en: 'Please …' },
+    ja: '{N}ください', kana: '{N}ください', romaji: '{N} kudasai', he_pron: '{N} קודאסאי',
+    he: 'בבקשה {he}', en: 'Please {en}',
+  },
+  {
+    id: 'call', group: 'requests', accepts: ['person'],
+    label: { he: 'תזמינו …, בבקשה', en: 'Please call …' },
+    ja: '{N}を呼んでください', kana: '{N}をよんでください', romaji: '{N} o yonde kudasai', he_pron: '{N} או יונדה קודאסאי',
+    he: 'תזמינו {he}, בבקשה', en: 'Please call {a}',
   },
 
   {
@@ -232,27 +315,43 @@ export const PATTERNS: Pattern[] = [
     he: 'אנחנו מחפשים {he}', en: "We're looking for {a}",
   },
   {
-    id: 'lost', group: 'problems', accepts: ['belonging'],
+    id: 'lost', group: 'problems',
+    keywords: 'lost missing איבדתי אבד חסר', accepts: ['belonging'],
     label: { he: 'איבדתי את …', en: 'I lost my …' },
     ja: '{N}をなくしました', kana: '{N}をなくしました', romaji: '{N} o nakushimashita', he_pron: '{N} או נאקושימאשיטה',
     he: 'איבדתי את {he_def}', en: 'I lost my {en}',
   },
   {
-    id: 'hurts', group: 'problems', accepts: ['body'],
+    id: 'hurts', group: 'problems',
+    keywords: 'pain hurt sick doctor כאב כואב רופא חולה', accepts: ['body'],
     label: { he: 'כואב לי …', en: 'My … hurts' },
     ja: '{N}が痛いです', kana: '{N}がいたいです', romaji: '{N} ga itai desu', he_pron: '{N} גה איטאי דס',
     he: 'כואב לי {he_def}', en: 'My {en} hurts',
   },
   {
-    id: 'broken', group: 'problems', accepts: ['fixture'],
+    id: 'broken', group: 'problems',
+    keywords: 'broken fix repair problem תקלה מקולקל שבור לתקן', accepts: ['fixture'],
     label: { he: 'יש תקלה ב…', en: '… is broken' },
     ja: '{N}が壊れています', kana: '{N}がこわれています', romaji: '{N} ga kowarete imasu', he_pron: '{N} גה קווארטה אימאס',
     he: 'יש תקלה ב{he}', en: '{The} is broken',
   },
   {
-    id: 'not-working', group: 'problems', accepts: ['fixture', 'works'],
+    id: 'not-working', group: 'problems',
+    keywords: 'not working broken problem לא עובד תקלה', accepts: ['fixture', 'works'],
     label: { he: 'לא מצליחים להשתמש ב…', en: "… doesn't work" },
     ja: '{N}が使えません', kana: '{N}がつかえません', romaji: '{N} ga tsukaemasen', he_pron: '{N} גה צוקאאמאסן',
     he: 'לא מצליחים להשתמש ב{he}', en: "{The} doesn't work",
+  },
+  {
+    id: 'forgot', group: 'problems', accepts: ['belonging'],
+    label: { he: 'שכחתי את …', en: 'I left my … behind' },
+    ja: '{N}を忘れました', kana: '{N}をわすれました', romaji: '{N} o wasuremashita', he_pron: '{N} או וואסורמאשיטה',
+    he: 'שכחתי את {he_def}', en: 'I left my {en} behind',
+  },
+  {
+    id: 'need', group: 'problems', accepts: ['thing', 'amenity'],
+    label: { he: 'אנחנו צריכים …', en: 'We need …' },
+    ja: '{N}が必要です', kana: '{N}がひつようです', romaji: '{N} ga hitsuyou desu', he_pron: '{N} גה היצויו דס',
+    he: 'אנחנו צריכים {he}', en: 'We need {a}',
   },
 ]

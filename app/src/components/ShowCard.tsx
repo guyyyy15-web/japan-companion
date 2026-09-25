@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Ja } from './Ja'
 import { useI18n } from '../i18n'
-import { canSpeak, speakJapanese } from '../lib/speech'
+import { SpeakButtons } from './SpeakButtons'
 import { keepAwake } from '../lib/wakeLock'
 
 export interface CardContent {
@@ -40,7 +40,7 @@ export function ShowCard({ card, onClose }: { card: CardContent; onClose: () => 
         <div className="showcard-romaji" dir="ltr">{card.romaji}</div>
         <div className="showcard-actions">
           <button onClick={() => setFlipped((f) => !f)}>🔄 {t('card.rotate')}</button>
-          {canSpeak() && <button onClick={() => speakJapanese(card.kana)}>🔊 {t('card.speak')}</button>}
+          <SpeakButtons text={card.ja} />
           <button className="primary" onClick={onClose}>✕ {t('card.close')}</button>
         </div>
       </div>

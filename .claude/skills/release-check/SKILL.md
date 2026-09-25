@@ -29,12 +29,17 @@ pkill -f "vite preview --port 4173"   # exit code 144 here is pkill matching its
 `scripts/smoke.mjs` stubs the exchange-rate API with fixed rates (no real network) and must:
 
 1. Open the app at 393×852 (iPhone 15), with `isMobile` and `hasTouch`.
-2. For `he` and `en`: visit each tab (Phrases, Signs, Money, Guide), take a
+2. For `he` and `en`: visit each tab (Phrases, Builder, Signs, Money, Guide), take a
    screenshot, and fail on any console error.
 3. Type `5000` in the converter and check that ₪ and $ values appear.
 4. Open a show-card and check the Japanese text is visible.
 5. Wait for the service worker, go offline
    (`context.setOffline(true)`), reload, and check the app still renders.
+6. Drive the builder through each group (frame grid folds after a pick), the
+   type-ahead ("לשכור אופניים"), and speech via a fake `speechSynthesis`:
+   kanji text, `ja-JP`, best voice, 🐢 slower.
+7. **iPhone SE pass (375×667):** no sideways scroll on any tab, every frame
+   button fully on screen, and a warning toast when no Japanese voice exists.
 
 ## 3. Look at the screenshots
 

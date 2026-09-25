@@ -9,8 +9,8 @@ visitor well.
 2. **Money:** know what something costs in shekels and dollars, and handle a
    country that still runs on cash.
 
-> **Status:** v0.3, where the **phrase builder** gains requests ("Could you …?", "May I …?"), renting, pointing and broken-things frames. It has phrases, show-cards, signs, a converter
-> and a guide, and it works offline.
+> **Status:** v0.4. The phrase builder has type-ahead search, a small-screen layout, 46 sentence
+> frames and a better Japanese voice. Phrases, show-cards, signs, a converter and a guide, all offline.
 
 **Live app:** https://guyyyy15-web.github.io/japan-companion/ (deployed automatically
 from `main`). On each iPhone, open it in **Safari → Share → Add to Home Screen**.
@@ -32,10 +32,10 @@ npm run preview &  # then: npm run smoke  (iPhone-viewport browser test, writes 
 | Tab | What it does |
 |-----|--------------|
 | 💬 Phrases | 102 phrases in 9 categories: Japanese, Hebrew pronunciation, romaji, 🔊 audio, ★ favorites, search. 🪧 opens a **full-screen card** to show staff, with the screen kept on and a flip-toward-them button. **👂 "They say"**: 20 phrases staff say to *you* (konbini, restaurant, station), each with what to answer. |
-| 🧩 Builder | **Build your own sentence**: pick a frame ("Where is …?", "How much is that?", "Can I have …?", "Could you heat it up / show me / help us / fix it?", "May I take a photo?", "How much to rent …?", "… is broken"… 34 in all), then a word or action (190: places, food, drinks, ingredients, rentals, room fixtures, transport, body, belongings, payment, 38 verbs) or type a name, e.g. pasted from Google Maps. You get correct Japanese with kana, romaji, Hebrew pronunciation, 🔊 and the show-card; there's a 1–5 counter for orders and a Recent list. See [the design](docs/05-phrase-builder.md). |
+| 🧩 Builder | **Build your own sentence.** Type a few words in Hebrew, English or Japanese ("toilet", "לשכור אופניים", "heat") and pick a ready sentence, or choose a group (getting around / ordering / requests / problems), a frame and a word. 46 frames × 274 words and actions: where is, how do we get to, which platform for Kyoto, tickets ×2 to Osaka, how much is that, can I have, I'm allergic to, could you heat it up, may I take a photo, please call a doctor, the air conditioner is broken… You get correct Japanese, kana, romaji, Hebrew pronunciation, 🔊 / 🐢 audio and the show-card. See [the design](docs/05-phrase-builder.md). |
 | 🈯 Signs | 83 kanji from signs and menus (exits, push/pull, open/closed, tax-free, pork/beef, onsen curtains…), by place, searchable |
 | 💴 Money | ¥ ↔ ₪ ↔ $ keypad converter, live rate cached for offline, optional card-fee % and a manual rate, a quick-reference table, and a tax-free check (≥ ¥5,000 before tax) |
-| 🧭 Guide | Tap-to-call emergency numbers and the Israeli embassy, a pre-flight checklist, cash & ATMs, tax-free rules, trains & Suica, etiquette, earthquakes |
+| 🧭 Guide | Japanese voice settings (choose the best voice, speed, test), tap-to-call emergency numbers and the Israeli embassy, a pre-flight checklist, cash & ATMs, tax-free rules, trains & Suica, etiquette, earthquakes |
 
 Everything is Hebrew (RTL) or English with one toggle.
 

@@ -2,14 +2,21 @@ import { useMemo, useState } from 'react'
 import { PATTERNS, type Pattern, type PatternGroup, type WordType } from '../../content/patterns'
 import { Ja } from '../../components/Ja'
 import { ShowCard, type CardContent } from '../../components/ShowCard'
+import { SpeakButtons } from '../../components/SpeakButtons'
 import { useI18n } from '../../i18n'
 import type { Key } from '../../i18n/en'
 import { build, customWord, fits, MAX_COUNT, VOCAB, wordsFor, type Word } from '../../lib/builder'
 import { matches } from '../../lib/search'
-import { canSpeak, speakJapanese } from '../../lib/speech'
 import { load, save } from '../../lib/storage'
+import { suggest } from '../../lib/suggest'
 
-const GROUPS: PatternGroup[] = ['around', 'order', 'requests', 'problems']
+const GROUPS: { id: PatternGroup; icon: string }[] = [
+  { id: 'around', icon: '🧭' },
+  { id: 'order', icon: '🍜' },
+  { id: 'requests', icon: '🙏' },
+  { id: 'problems', icon: '🆘' },
+]
+
 const HEADING: Record<Exclude<WordType, 'custom'>, Key> = {
   place: 'type.place',
   'pointer-place': 'type.pointer',
@@ -29,6 +36,10 @@ const HEADING: Record<Exclude<WordType, 'custom'>, Key> = {
   vehicle: 'type.vehicle',
   request: 'type.request',
   'may-i': 'type.may-i',
+  city: 'type.city',
+  allergen: 'type.allergen',
+  event: 'type.event',
+  person: 'type.person',
 }
 
 interface Recent {
@@ -38,6 +49,7 @@ interface Recent {
 }
 const RECENT_KEY = 'jc.builderRecent'
 const MAX_RECENT = 8
+const WORD_FILTER_MIN = 16
 
 function resolveWord(ref: string): Word | undefined {
   return ref.startsWith('custom:') ? customWord(ref.slice(7)) : VOCAB.find((v) => v.id === ref)
@@ -46,45 +58,49 @@ function resolveWord(ref: string): Word | undefined {
 export function BuilderView() {
   const { t, lang, pick } = useI18n()
   const [pattern, setPattern] = useState<Pattern>(PATTERNS[0])
+  const [group, setGroup] = useState<PatternGroup>(PATTERNS[0].group)
   const [word, setWord] = useState<Word | null>(null)
   const [count, setCount] = useState(1)
   const [query, setQuery] = useState('')
+  const [wordFilter, setWordFilter] = useState('')
   const [custom, setCustom] = useState('')
   const [recent, setRecent] = useState<Recent[]>(() => load<Recent[]>(RECENT_KEY, []))
   const [card, setCard] = useState<CardContent | null>(null)
+  // The frame grid folds into a one-line bar once a frame is picked, so the words sit right below.
+  const [framesOpen, setFramesOpen] = useState(true)
 
-  const choosePattern = (p: Pattern) => {
-    setPattern(p)
-    setCount(1)
-    if (word && !fits(p, word)) setWord(null)
-  }
-
-  const chooseWord = (w: Word, n = count) => {
-    setWord(w)
-    const entry: Recent = { p: pattern.id, w: w.id === 'custom' ? `custom:${w.ja}` : w.id, n }
+  const remember = (p: Pattern, w: Word, n: number) => {
+    const entry: Recent = { p: p.id, w: w.id === 'custom' ? `custom:${w.ja}` : w.id, n }
     const next = [entry, ...recent.filter((r) => !(r.p === entry.p && r.w === entry.w && r.n === entry.n))].slice(0, MAX_RECENT)
     setRecent(next)
     save(RECENT_KEY, next)
   }
 
+  const choose = (p: Pattern, w: Word | null, n = 1) => {
+    setPattern(p)
+    setGroup(p.group)
+    setWord(w)
+    setCount(n)
+    setWordFilter('')
+    if (w) remember(p, w, n)
+  }
+
+  const choosePattern = (p: Pattern) => {
+    choose(p, word && fits(p, word) ? word : null, 1)
+    setFramesOpen(false)
+  }
+
   const changeCount = (n: number) => {
     const next = Math.min(MAX_COUNT, Math.max(1, n))
     setCount(next)
-    if (word) chooseWord(word, next)
+    if (word) remember(pattern, word, next)
   }
 
-  const restore = (r: Recent) => {
-    const p = PATTERNS.find((x) => x.id === r.p)
-    const w = resolveWord(r.w)
-    if (!p || !w) return
-    setPattern(p)
-    setWord(w)
-    setCount(r.n)
-  }
+  const suggestions = useMemo(() => suggest(query, lang), [query, lang])
 
   // Words for this frame, grouped under the first accepted type they have.
   const sections = useMemo(() => {
-    const q = query.trim()
+    const q = wordFilter.trim()
     const list = wordsFor(pattern).filter((w) => !q || matches(q, [w.en, w.he, w.ja, w.kana, w.romaji]))
     const byHeading = new Map<Key, Word[]>()
     for (const w of list) {
@@ -93,114 +109,177 @@ export function BuilderView() {
       byHeading.set(key, [...(byHeading.get(key) ?? []), w])
     }
     return [...byHeading.entries()]
-  }, [pattern, query])
+  }, [pattern, wordFilter])
 
+  const total = wordsFor(pattern).length
   const result = word ? build(pattern, word, count) : null
   const allowsCustom = pattern.accepts.includes('custom')
+  const blank = pick(pattern.label).replace('…', '＿＿')
 
   return (
     <div className="view builder">
-      {recent.length > 0 && (
-        <section>
-          <h3 className="step">{t('builder.recent')}</h3>
-          <div className="chips">
-            {recent.map((r, i) => {
-              const p = PATTERNS.find((x) => x.id === r.p)
-              const w = resolveWord(r.w)
-              if (!p || !w) return null
-              return (
-                <button key={i} className="chip" onClick={() => restore(r)}>
-                  <Ja>{build(p, w, r.n).ja}</Ja>
-                </button>
-              )
-            })}
-          </div>
-        </section>
-      )}
-
-      <section>
-        <h3 className="step">① {t('builder.step1')}</h3>
-        {GROUPS.map((g) => (
-          <div key={g} className="frame-group">
-            <div className="frame-group-title">{t(`group.${g}`)}</div>
-            <div className="frames">
-              {PATTERNS.filter((p) => p.group === g).map((p) => (
-                <button
-                  key={p.id}
-                  className={p.id === pattern.id ? 'frame active' : 'frame'}
-                  aria-pressed={p.id === pattern.id}
-                  onClick={() => choosePattern(p)}
-                >
-                  {pick(p.label)}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      <section>
-        <h3 className="step">② {t('builder.step2')}</h3>
+      <div className="smart">
         <input
           className="search"
           type="search"
-          placeholder={t('builder.search')}
+          enterKeyHint="search"
+          placeholder={t('builder.smart')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        {sections.map(([heading, words]) => (
-          <div key={heading} className="word-group">
-            <div className="frame-group-title">{t(heading)}</div>
-            <div className="words">
-              {words.map((w) => (
+        {query.trim() && (
+          <ul className="suggest" role="listbox">
+            {suggestions.map((s) => (
+              <li key={`${s.pattern.id}:${s.word.id}`}>
                 <button
-                  key={w.id}
-                  className={word?.id === w.id ? 'word active' : 'word'}
-                  aria-pressed={word?.id === w.id}
-                  onClick={() => chooseWord(w)}
+                  role="option"
+                  className="suggest-item"
+                  onClick={() => {
+                    choose(s.pattern, s.word)
+                    setFramesOpen(false)
+                    setQuery('')
+                  }}
                 >
-                  <span>{lang === 'he' ? w.he : w.en}</span>
-                  <Ja className="word-ja">{w.ja}</Ja>
+                  <span className="suggest-gloss">{lang === 'he' ? s.built.he : s.built.en}</span>
+                  <Ja className="suggest-ja">{s.built.ja}</Ja>
                 </button>
-              ))}
-            </div>
-          </div>
-        ))}
-        {sections.length === 0 && <p className="empty">{t('phrases.noResults')}</p>}
-
-        {allowsCustom && (
-          <form
-            className="custom"
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (custom.trim()) chooseWord(customWord(custom))
-            }}
-          >
-            <label className="frame-group-title" htmlFor="custom-word">{t('builder.custom')}</label>
-            <div className="custom-row">
-              <input
-                id="custom-word"
-                className="search"
-                value={custom}
-                placeholder="Kinkakuji / 金閣寺"
-                onChange={(e) => setCustom(e.target.value)}
-              />
-              <button className="frame active" type="submit" disabled={!custom.trim()}>{t('builder.use')}</button>
-            </div>
-            <small className="muted">{t('builder.customHint')}</small>
-          </form>
+              </li>
+            ))}
+            {suggestions.length === 0 && <li className="empty">{t('builder.noSuggest')}</li>}
+          </ul>
         )}
-      </section>
+      </div>
+
+      {!query.trim() && (
+        <>
+          {recent.length > 0 && (
+            <div className="recent">
+              <span className="recent-title">{t('builder.recent')}</span>
+              <div className="chips">
+                {recent.map((r, i) => {
+                  const p = PATTERNS.find((x) => x.id === r.p)
+                  const w = resolveWord(r.w)
+                  if (!p || !w) return null
+                  return (
+                    <button key={i} className="chip small" onClick={() => { choose(p, w, r.n); setFramesOpen(false) }}>
+                      <Ja>{build(p, w, r.n).ja}</Ja>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          <section className="builder-step">
+            {framesOpen ? (
+              <>
+                <h3 className="step">① {t('builder.step1')}</h3>
+                <div className="group-tabs" role="tablist">
+                  {GROUPS.map((g) => (
+                    <button
+                      key={g.id}
+                      role="tab"
+                      aria-selected={g.id === group}
+                      className={g.id === group ? 'group-tab active' : 'group-tab'}
+                      onClick={() => setGroup(g.id)}
+                    >
+                      <span aria-hidden>{g.icon}</span>
+                      <span>{t(`groupShort.${g.id}`)}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="frame-grid">
+                  {PATTERNS.filter((p) => p.group === group).map((p) => (
+                    <button
+                      key={p.id}
+                      className={p.id === pattern.id ? 'frame active' : 'frame'}
+                      aria-pressed={p.id === pattern.id}
+                      onClick={() => choosePattern(p)}
+                    >
+                      {pick(p.label)}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="frame-bar">
+                <span className="frame-bar-label">①</span>
+                <span className="frame-bar-current">{pick(pattern.label)}</span>
+                <button className="link" onClick={() => setFramesOpen(true)}>{t('builder.change')} ▾</button>
+              </div>
+            )}
+          </section>
+
+          <section className="builder-step">
+            <h3 className="step">
+              ② {t('builder.step2')} <span className="step-frame">{blank}</span>
+            </h3>
+            {total >= WORD_FILTER_MIN && (
+              <input
+                className="search small"
+                type="search"
+                placeholder={t('builder.search')}
+                value={wordFilter}
+                onChange={(e) => setWordFilter(e.target.value)}
+              />
+            )}
+            {sections.map(([heading, words]) => (
+              <div key={heading} className="word-group">
+                <div className="group-title">{t(heading)}</div>
+                <div className="words">
+                  {words.map((w) => (
+                    <button
+                      key={w.id}
+                      className={word?.id === w.id ? 'word active' : 'word'}
+                      aria-pressed={word?.id === w.id}
+                      onClick={() => choose(pattern, w, count)}
+                    >
+                      {lang === 'he' ? w.he : w.en}
+                      <Ja className="word-ja">{w.ja}</Ja>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {sections.length === 0 && <p className="empty">{t('phrases.noResults')}</p>}
+
+            {allowsCustom && (
+              <form
+                className="custom"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  if (custom.trim()) choose(pattern, customWord(custom), count)
+                }}
+              >
+                <label className="group-title" htmlFor="custom-word">{t('builder.custom')}</label>
+                <div className="custom-row">
+                  <input
+                    id="custom-word"
+                    className="search small"
+                    value={custom}
+                    placeholder="Kinkakuji / 金閣寺"
+                    onChange={(e) => setCustom(e.target.value)}
+                  />
+                  <button className="frame active" type="submit" disabled={!custom.trim()}>{t('builder.use')}</button>
+                </div>
+                <small className="muted">{t('builder.customHint')}</small>
+              </form>
+            )}
+          </section>
+        </>
+      )}
 
       {result && word && (
         <section className="builder-result" aria-live="polite">
-          <div className="meaning">{lang === 'he' ? result.he : result.en}</div>
-          <Ja className="ja-line">{result.ja}</Ja>
-          <div className="pron">
-            {lang === 'he' && <span>{result.he_pron}</span>}
-            <span className="romaji" dir="ltr">{result.romaji}</span>
+          <div className="result-text">
+            <div className="result-gloss">{lang === 'he' ? result.he : result.en}</div>
+            <Ja className="result-ja">{result.ja}</Ja>
+            <div className="result-pron">
+              {lang === 'he' && <span>{result.he_pron}</span>}
+              <span className="romaji" dir="ltr">{result.romaji}</span>
+            </div>
           </div>
-          <div className="actions">
+          <div className="result-actions">
             {pattern.count && (
               <div className="stepper" role="group" aria-label={t('builder.count')}>
                 <button className="icon" onClick={() => changeCount(count - 1)} aria-label="−">−</button>
@@ -208,9 +287,7 @@ export function BuilderView() {
                 <button className="icon" onClick={() => changeCount(count + 1)} aria-label="+">+</button>
               </div>
             )}
-            {canSpeak() && (
-              <button className="icon" aria-label={t('phrases.speak')} onClick={() => speakJapanese(result.kana)}>🔊</button>
-            )}
+            <SpeakButtons text={result.ja} />
             <button
               className="icon"
               aria-label={t('phrases.show')}

@@ -1,5 +1,6 @@
 import { EMERGENCY_CONTACTS, GUIDE } from '../../content/guide'
 import { useI18n } from '../../i18n'
+import { VoiceSettings } from './VoiceSettings'
 
 export function GuideView() {
   const { t, pick } = useI18n()
@@ -18,6 +19,13 @@ export function GuideView() {
           ))}
         </ul>
       </section>
+
+      <details className="panel guide" id="voice">
+        <summary>
+          <span aria-hidden>🔊</span> {t('voice.title')}
+        </summary>
+        <VoiceSettings />
+      </details>
 
       {GUIDE.map((s) => (
         <details key={s.id} className="panel guide" open={s.id === 'setup'}>
