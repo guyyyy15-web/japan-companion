@@ -242,6 +242,7 @@ main {
 .showcard-ja.short { font-size: clamp(3rem, 16vw, 6rem); }
 .showcard-ja.mid { font-size: clamp(2.2rem, 11vw, 4.5rem); }
 .showcard-ja.long { font-size: clamp(1.7rem, 8vw, 3.2rem); }
+.showcard-lead { font-size: clamp(1.2rem, 5.5vw, 1.8rem); font-weight: 600; color: var(--shu); }
 .showcard-kana { font-size: clamp(1.1rem, 5vw, 1.6rem); color: var(--ink-2); }
 .showcard-mine { padding-block-start: 14px; display: flex; flex-direction: column; gap: 6px; text-align: center; }
 .showcard-meaning { font-weight: 600; }
@@ -335,7 +336,7 @@ main {
 .anchors td:first-child { font-weight: 600; }
 .anchors tr:last-child td { border-block-end: 0; }
 .field { display: flex; flex-direction: column; gap: 4px; margin-block-start: 12px; }
-.field input { padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+.field input, .field select { padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
 .field small { color: var(--ink-2); }
 
 /* Guide */
@@ -596,3 +597,48 @@ main {
 .nearby-phrase-text { display: flex; flex-direction: column; min-width: 0; }
 .ja-line.small { font-size: 1.05rem; }
 .tips { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+
+/* Trip wallet */
+.wallet-add, .wallet { display: flex; flex-direction: column; gap: 8px; }
+.cat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.cat-btn { border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 8px 4px; font-size: 0.85rem; color: var(--ink); }
+.cat-btn.active { background: var(--ai); border-color: var(--ai); color: #fff; }
+.seg.two { grid-template-columns: repeat(2, 1fr); }
+.wallet-total { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 1.6rem; font-weight: 700; }
+.wallet-total .muted { font-size: 1rem; font-weight: 500; }
+.wallet-sub { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; }
+.cat-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; font-size: 0.85rem; }
+.cat-bars li { display: grid; grid-template-columns: 7.5em 1fr auto; align-items: center; gap: 8px; }
+.cat-bar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-bar-track { block-size: 8px; background: var(--ai-soft); border-radius: 999px; overflow: hidden; }
+.cat-bar-fill { display: block; block-size: 100%; background: var(--shu); border-radius: 999px; }
+.wallet-day { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); padding: 6px 10px; }
+.wallet-day summary { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+.wallet-items { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.wallet-items li { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
+.wallet-item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.wallet-item-text .muted { font-size: 0.75rem; }
+.wallet-del { flex: none; inline-size: 28px; block-size: 28px; font-size: 1.1rem; color: var(--ink-2); }
+.wallet-actions { display: flex; justify-content: space-between; gap: 8px; }
+.link.danger { color: var(--shu); }
+
+/* My places */
+.places { display: flex; flex-direction: column; gap: 8px; }
+.place-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.place-list li { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.place-text { display: flex; flex-direction: column; min-width: 0; }
+.place-address { font-size: 0.9rem; overflow-wrap: anywhere; }
+.place-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.place-actions .wallet-del { margin-inline-start: auto; }
+button.nearby-go { background: none; }
+.place-form { display: flex; flex-direction: column; gap: 6px; }
+.place-form textarea { resize: vertical; font-family: inherit; }
+.place-form-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.place-form-actions .primary-btn { inline-size: auto; padding-inline: 16px; }
+
+/* Sizes */
+.sizes { display: flex; flex-direction: column; gap: 8px; padding-block-start: 6px; }
+.sizes h4 { margin: 8px 0 0; font-size: 0.95rem; }
+.size-result { display: flex; align-items: baseline; gap: 10px; }
+.size-big { font-size: 1.8rem; font-weight: 700; color: var(--shu); }
+.sizes-table th { font-size: 0.8rem; color: var(--ink-2); font-weight: 600; text-align: start; }

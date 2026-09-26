@@ -103,6 +103,11 @@ export function directionsUrl(to: LatLon): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${to.lat.toFixed(6)},${to.lon.toFixed(6)}&travelmode=walking`
 }
 
+/** Directions to a typed address; Google Maps picks the travel mode. */
+export function addressDirectionsUrl(address: string): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`
+}
+
 /** A Google Maps search around the phone's current position (no location in the URL). */
 export function searchUrl(query: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`

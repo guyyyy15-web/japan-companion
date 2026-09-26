@@ -9,6 +9,8 @@ export interface CardContent {
   kana: string
   romaji: string
   meaning: string
+  /** Optional line above the big text, e.g. "please take me to this address" over an address. */
+  lead?: string
 }
 
 /** Full-screen card to hand to someone: big Japanese, screen kept on, flippable toward them. */
@@ -32,6 +34,7 @@ export function ShowCard({ card, onClose }: { card: CardContent; onClose: () => 
   return (
     <div className="showcard" role="dialog" aria-modal="true">
       <div className={`showcard-face ${flipped ? 'flipped' : ''}`}>
+        {card.lead && <Ja className="showcard-lead">{card.lead}</Ja>}
         <Ja className={`showcard-ja ${size}`}>{card.ja}</Ja>
         {card.kana !== card.ja && <Ja className="showcard-kana">{card.kana}</Ja>}
       </div>
@@ -40,7 +43,7 @@ export function ShowCard({ card, onClose }: { card: CardContent; onClose: () => 
         <div className="showcard-romaji" dir="ltr">{card.romaji}</div>
         <div className="showcard-actions">
           <button onClick={() => setFlipped((f) => !f)}>🔄 {t('card.rotate')}</button>
-          <SpeakButtons text={card.ja} />
+          <SpeakButtons text={card.lead ?? card.ja} />
           <button className="primary" onClick={onClose}>✕ {t('card.close')}</button>
         </div>
       </div>

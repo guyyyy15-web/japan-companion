@@ -5,6 +5,7 @@ import { ShowCard, type CardContent } from '../../components/ShowCard'
 import { SpeakButtons } from '../../components/SpeakButtons'
 import { Icon } from '../../components/Icon'
 import { useI18n } from '../../i18n'
+import { PlacesPanel } from './PlacesPanel'
 import type { Key } from '../../i18n/en'
 import { matches } from '../../lib/search'
 import {
@@ -195,6 +196,8 @@ export function NearbyView() {
           </>
         )}
       </section>
+
+      <PlacesPanel here={here} onShow={setCard} />
 
       <section className="panel nearby-search">
         <h3>{t('nearby.search')}</h3>

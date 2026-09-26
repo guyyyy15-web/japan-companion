@@ -4,6 +4,7 @@ import { useI18n } from '../../i18n'
 import { convert, taxFreeCheck, TAX_FREE_MIN_PRETAX, type Currency } from '../../lib/money'
 import { load, save } from '../../lib/storage'
 import { useRates } from './useRates'
+import { WalletPanel } from './WalletPanel'
 
 const CURRENCIES: Currency[] = ['JPY', 'ILS', 'USD']
 const SYMBOL: Record<Currency, string> = { JPY: '¥', ILS: '₪', USD: '$' }
@@ -110,6 +111,12 @@ export function MoneyView() {
           </p>
         </section>
       )}
+
+      <WalletPanel
+        yen={Math.round(yen)}
+        toIls={(y) => convert(y, 'JPY', 'ILS', effective, feePct)}
+        onAdded={() => setInput('')}
+      />
 
       <section className="panel">
         <h3>{t('money.anchors')}</h3>

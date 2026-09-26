@@ -1,5 +1,6 @@
 import { EMERGENCY_CONTACTS, GUIDE } from '../../content/guide'
 import { useI18n } from '../../i18n'
+import { SizesPanel } from './SizesPanel'
 import { VoiceSettings } from './VoiceSettings'
 
 export function GuideView() {
@@ -25,6 +26,13 @@ export function GuideView() {
           <span aria-hidden>🔊</span> {t('voice.title')}
         </summary>
         <VoiceSettings />
+      </details>
+
+      <details className="panel guide" id="sizes">
+        <summary>
+          <span aria-hidden>👟</span> {t('sizes.title')}
+        </summary>
+        <SizesPanel />
       </details>
 
       {GUIDE.map((s) => (
