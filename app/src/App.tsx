@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { TabBar, type Tab } from './components/TabBar'
 import { Toast } from './components/Toast'
+import { WhatsNew } from './components/WhatsNew'
 import { PhrasesView } from './features/phrases/PhrasesView'
 import { BuilderView } from './features/builder/BuilderView'
 import { NearbyView } from './features/nearby/NearbyView'
@@ -36,6 +37,7 @@ export function App() {
         </button>
       </header>
       <main>
+        <WhatsNew onOpen={setTab} />
         {tab === 'phrases' && <PhrasesView />}
         {tab === 'builder' && <BuilderView />}
         {tab === 'nearby' && <NearbyView />}

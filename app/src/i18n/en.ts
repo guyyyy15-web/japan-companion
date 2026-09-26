@@ -201,6 +201,7 @@ export const en = {
   'practice.knew': 'Knew it',
   'practice.done': 'Done! You went through all {total} cards.',
   'practice.restart': 'Start again',
+  'whatsNew.title': 'New in this version',
   'money.enterAmount': 'Amount',
   'money.from': 'Convert from',
   'money.rateFrom': 'Rate from {date}',

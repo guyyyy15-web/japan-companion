@@ -60,6 +60,15 @@ const check = (cond, msg) => {
 await page.goto(URL_)
 await page.waitForSelector('.tabbar')
 
+// What's new: shown once, each line jumps to its tab.
+check(await page.isVisible('.whatsnew'), "what's new card shows after an update")
+await page.screenshot({ path: `${OUT}he-whatsnew.png` })
+await page.click('.whatsnew-item:has-text("ארנק")')
+check((await page.getAttribute('.tab.active', 'class')).includes('active') && (await page.isVisible('.keypad')), "what's new: the wallet line opens the Money tab")
+await page.reload()
+await page.waitForSelector('.tabbar')
+check(!(await page.isVisible('.whatsnew')), "what's new: not shown again")
+
 const tabs = [
   ['phrases', { he: 'ביטויים', en: 'Phrases' }],
   ['builder', { he: 'משפטים', en: 'Builder' }],
