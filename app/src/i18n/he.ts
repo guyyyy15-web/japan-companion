@@ -202,6 +202,7 @@ export const he: Record<Key, string> = {
   'practice.knew': 'ידעתי',
   'practice.done': 'סיימתם! עברתם על כל {total} הכרטיסים.',
   'practice.restart': 'להתחיל מחדש',
+  'whatsNew.title': 'חדש בגרסה הזו',
   'money.enterAmount': 'סכום',
   'money.from': 'להמיר מ',
   'money.rateFrom': 'שער מ-{date}',

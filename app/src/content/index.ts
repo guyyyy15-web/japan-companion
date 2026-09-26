@@ -17,7 +17,7 @@ export const CATEGORIES = [
 ] as const
 export type Category = (typeof CATEGORIES)[number]
 
-export const SIGN_PLACES = ['station', 'street', 'shop', 'restaurant', 'menu', 'toilet', 'onsen', 'hotel'] as const
+export const SIGN_PLACES = ['station', 'street', 'shop', 'konbini', 'restaurant', 'menu', 'toilet', 'onsen', 'hotel'] as const
 export type SignPlace = (typeof SIGN_PLACES)[number]
 
 export const LISTEN_PLACES = ['shop', 'konbini', 'restaurant', 'station', 'street'] as const
