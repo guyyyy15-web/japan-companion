@@ -15,6 +15,9 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
   colorScheme: 'light',
+  // A fixed GPS position (Tokyo Station) for the Nearby tab.
+  geolocation: { latitude: 35.6812, longitude: 139.7671, accuracy: 20 },
+  permissions: ['geolocation'],
 })
 // Deterministic rates, no real network.
 await context.route('https://open.er-api.com/**', (route) =>
@@ -60,6 +63,7 @@ await page.waitForSelector('.tabbar')
 const tabs = [
   ['phrases', { he: 'ביטויים', en: 'Phrases' }],
   ['builder', { he: 'משפטים', en: 'Builder' }],
+  ['nearby', { he: 'בסביבה', en: 'Nearby' }],
   ['signs', { he: 'שלטים', en: 'Signs' }],
   ['money', { he: 'כסף', en: 'Money' }],
   ['guide', { he: 'מדריך', en: 'Guide' }],
@@ -143,6 +147,21 @@ check(await page.isVisible('.showcard-ja'), 'show-card opens with Japanese text'
 await page.screenshot({ path: `${OUT}he-showcard.png` })
 await page.click('.showcard-actions .primary')
 
+// Nearby: nearest toilets and bins from the bundled OpenStreetMap data, with walking links.
+await page.click('.tab:has-text("בסביבה")')
+await page.click('.primary-btn')
+await page.waitForSelector('.nearby-list li', { timeout: 15000 })
+const toilets = await page.$$eval('.nearby-list li', (els) => els.length)
+const firstHref = await page.getAttribute('.nearby-go >> nth=0', 'href')
+check(toilets > 0 && firstHref.startsWith('https://www.google.com/maps/dir/?api=1&destination='), `nearby: ${toilets} toilets near Tokyo Station, with walking links`)
+await page.screenshot({ path: `${OUT}he-nearby.png`, fullPage: true })
+await page.click('.seg-btn:has-text("פחי אשפה")')
+await page.waitForTimeout(200)
+const binsOrNote = await page.$$eval('.nearby-panel', (els) => els[0].textContent)
+check(binsOrNote.includes('מ׳') || binsOrNote.includes('ק״מ') || binsOrNote.includes('קונביני'), 'nearby: bins list (or the konbini hint) shows')
+const quick = await page.getAttribute('.quick >> nth=0', 'href')
+check(quick === 'https://www.google.com/maps/search/?api=1&query=%E5%85%AC%E8%A1%86%E3%83%88%E3%82%A4%E3%83%AC', 'nearby: Google Maps quick search for 公衆トイレ')
+
 // Offline reload.
 await page.evaluate(() => navigator.serviceWorker.ready)
 await page.reload()
@@ -150,6 +169,10 @@ await page.waitForFunction(() => !!navigator.serviceWorker.controller)
 await context.setOffline(true)
 await page.reload()
 check(await page.isVisible('.tabbar'), 'app renders offline')
+await page.click('.tab:has-text("בסביבה")')
+await page.click('.primary-btn')
+await page.waitForSelector('.nearby-list li', { timeout: 15000 })
+check(true, 'nearby: nearest toilets work offline (data precached)')
 await context.setOffline(false)
 
 check(errors.length === 0, `no console errors${errors.length ? ': ' + errors.join(' | ') : ''}`)

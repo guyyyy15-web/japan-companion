@@ -3,6 +3,7 @@ import { TabBar, type Tab } from './components/TabBar'
 import { Toast } from './components/Toast'
 import { PhrasesView } from './features/phrases/PhrasesView'
 import { BuilderView } from './features/builder/BuilderView'
+import { NearbyView } from './features/nearby/NearbyView'
 import { SignsView } from './features/signs/SignsView'
 import { MoneyView } from './features/money/MoneyView'
 import { GuideView } from './features/guide/GuideView'
@@ -37,6 +38,7 @@ export function App() {
       <main>
         {tab === 'phrases' && <PhrasesView />}
         {tab === 'builder' && <BuilderView />}
+        {tab === 'nearby' && <NearbyView />}
         {tab === 'signs' && <SignsView />}
         {tab === 'money' && <MoneyView />}
         {tab === 'guide' && <GuideView />}

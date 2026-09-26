@@ -1,0 +1,44 @@
+name: Refresh toilet & bin data
+
+# Monthly: re-download public toilets and bins in Japan from OpenStreetMap, commit the new
+# app/public/data/facilities.json to main, then redeploy the site.
+on:
+  schedule:
+    - cron: '17 3 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node app/scripts/fetch-facilities.mjs
+      - id: commit
+        run: |
+          if git diff --quiet -- app/public/data/facilities.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add app/public/data/facilities.json
+            git commit -m "Refresh toilet & bin data from OpenStreetMap"
+            git push origin HEAD:main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    uses: ./.github/workflows/deploy.yml
