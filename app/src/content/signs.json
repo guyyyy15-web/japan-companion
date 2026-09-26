@@ -103,5 +103,7 @@
   {"id": "price-cut", "kanji": "値引", "reading": "ねびき", "romaji": "nebiki", "he": "הנחה (מדבקה בערב)", "en": "Price cut (evening sticker)", "where": "konbini"},
   {"id": "percent-off", "kanji": "2割引", "reading": "にわりびき", "romaji": "ni waribiki", "he": "20% הנחה (割 = 10%)", "en": "20% off (割 = 10%)", "where": "konbini"},
   {"id": "one-each", "kanji": "お一人様1点限り", "reading": "おひとりさまいってんかぎり", "romaji": "ohitori-sama itten kagiri", "he": "מוגבל לאחד לאדם", "en": "Limit one per person", "where": "konbini"},
-  {"id": "microwave", "kanji": "レンジ", "reading": "れんじ", "romaji": "renji", "he": "מיקרוגל (אפשר לבקש לחמם)", "en": "Microwave (ask them to heat it)", "where": "konbini"}
+  {"id": "microwave", "kanji": "レンジ", "reading": "れんじ", "romaji": "renji", "he": "מיקרוגל (אפשר לבקש לחמם)", "en": "Microwave (ask them to heat it)", "where": "konbini"},
+  {"id": "no-tattoo", "kanji": "刺青・タトゥーお断り", "reading": "いれずみ・たとぅーおことわり", "romaji": "irezumi tatū okotowari", "he": "אין כניסה עם קעקועים", "en": "No tattoos allowed", "where": "onsen"},
+  {"id": "tattoo-ok", "kanji": "タトゥーOK", "reading": "たとぅーおーけー", "romaji": "tatū ōkē", "he": "קעקועים מותרים", "en": "Tattoos allowed", "where": "onsen"}
 ]

@@ -1,5 +1,17 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { LOCAL_APPS, NEARBY_PHRASES, NEARBY_TIPS, QUICK_SEARCHES, SEARCH_CATEGORIES, TRASH_MAP_URL } from '../../content/nearby'
+import {
+  LOCAL_APPS,
+  NEARBY_PHRASES,
+  NEARBY_TIPS,
+  QUICK_SEARCHES,
+  SEARCH_CATEGORIES,
+  TATTOO_PHRASES,
+  TATTOO_SEARCHES,
+  TATTOO_SITE,
+  TATTOO_TIPS,
+  TRASH_MAP_URL,
+  type NearbyPhrase,
+} from '../../content/nearby'
 import { Ja } from '../../components/Ja'
 import { ShowCard, type CardContent } from '../../components/ShowCard'
 import { SpeakButtons } from '../../components/SpeakButtons'
@@ -8,6 +20,7 @@ import { useI18n } from '../../i18n'
 import { PlacesPanel } from './PlacesPanel'
 import type { Key } from '../../i18n/en'
 import { matches } from '../../lib/search'
+import { load, save } from '../../lib/storage'
 import {
   BRAND_NAMES,
   compassWord,
@@ -60,6 +73,12 @@ export function NearbyView() {
   const [card, setCard] = useState<CardContent | null>(null)
   const [category, setCategory] = useState(SEARCH_CATEGORIES[0].id)
   const [text, setText] = useState('')
+  // Tattoo-friendly mode: onsen, sento, sauna, gym and pool searches limited to places that allow tattoos.
+  const [tattoo, setTattoo] = useState(() => load('jc.tattooFriendly', false))
+  const toggleTattoo = () => {
+    setTattoo(!tattoo)
+    save('jc.tattooFriendly', !tattoo)
+  }
   const watchId = useRef<number | null>(null)
 
   useEffect(() => {
@@ -101,13 +120,41 @@ export function NearbyView() {
   const current = KINDS.find((k) => k.id === kind)!
   const typed = text.trim()
   // Typing filters every quick search (in Hebrew, English or Japanese); anything else is searched as typed.
+  const pool = tattoo ? TATTOO_SEARCHES : QUICK_SEARCHES
   const searches = typed
-    ? QUICK_SEARCHES.filter((s) => matches(typed, [s.label.he, s.label.en, s.query]))
-    : SEARCH_CATEGORIES.find((c) => c.id === category)!.items
+    ? pool.filter((s) => matches(typed, [s.label.he, s.label.en, s.query]))
+    : tattoo
+      ? TATTOO_SEARCHES
+      : SEARCH_CATEGORIES.find((c) => c.id === category)!.items
+  const typedQuery = tattoo ? `タトゥーOK ${typed}` : typed
 
   const results = useMemo(
     () => (here && data ? nearest(here, data[kind], LIMIT, MAX_METERS) : []),
     [here, data, kind],
+  )
+
+  const phraseList = (list: NearbyPhrase[]) => (
+    <ul className="nearby-phrases">
+      {list.map((p) => (
+        <li key={p.id}>
+          <div className="nearby-phrase-text">
+            <span className="meaning">{pick(p)}</span>
+            <Ja className="ja-line small">{p.ja}</Ja>
+            <span className="romaji" dir="ltr">{p.romaji}</span>
+          </div>
+          <div className="actions">
+            <SpeakButtons text={p.ja} slowButton={false} />
+            <button
+              className="icon"
+              aria-label={t('phrases.show')}
+              onClick={() => setCard({ ja: p.ja, kana: p.kana, romaji: p.romaji, meaning: pick(p) })}
+            >
+              <Icon name="card" size={20} />
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
   )
 
   return (
@@ -209,7 +256,11 @@ export function NearbyView() {
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
-        {!typed && (
+        <button className={tattoo ? 'tattoo-toggle on' : 'tattoo-toggle'} aria-pressed={tattoo} onClick={toggleTattoo}>
+          <span aria-hidden>🐉</span> {t('nearby.tattoo')}
+          <span className="tattoo-switch" aria-hidden />
+        </button>
+        {!typed && !tattoo && (
           <div className="group-tabs four" role="tablist">
             {SEARCH_CATEGORIES.map((c) => (
               <button
@@ -227,10 +278,10 @@ export function NearbyView() {
         )}
         <div className="quick-grid">
           {typed && (
-            <a className="quick typed" href={searchUrl(typed)} target="_blank" rel="noopener noreferrer">
+            <a className="quick typed" href={searchUrl(typedQuery)} target="_blank" rel="noopener noreferrer">
               <span aria-hidden>🔎</span>
               <span className="quick-text">
-                <span>{t('nearby.searchTyped', { text: typed })}</span>
+                <span>{t('nearby.searchTyped', { text: typedQuery })}</span>
               </span>
             </a>
           )}
@@ -243,7 +294,7 @@ export function NearbyView() {
               </span>
             </a>
           ))}
-          {!typed && category === 'essentials' && (
+          {!typed && !tattoo && category === 'essentials' && (
             <a className="quick" href={TRASH_MAP_URL} target="_blank" rel="noopener noreferrer">
               <span aria-hidden>🗺️</span>
               <span className="quick-text">
@@ -252,7 +303,25 @@ export function NearbyView() {
             </a>
           )}
         </div>
-        <p className="muted small-start">{t('nearby.searchNote')}</p>
+        <p className="muted small-start">{t(tattoo ? 'nearby.tattooNote' : 'nearby.searchNote')}</p>
+        {tattoo && (
+          <div className="tattoo-panel">
+            <a className="app-link" href={TATTOO_SITE.url} target="_blank" rel="noopener noreferrer">
+              <span className="app-icon" aria-hidden>🐉</span>
+              <span className="app-text">
+                <span className="app-name">{TATTOO_SITE.name}</span>
+                <span className="muted app-what">{t('nearby.tattooSite')}</span>
+              </span>
+              <span aria-hidden className="app-go">↗</span>
+            </a>
+            <ul className="tips">
+              {TATTOO_TIPS.map((tip, i) => (
+                <li key={i}>{pick(tip)}</li>
+              ))}
+            </ul>
+            {phraseList(TATTOO_PHRASES)}
+          </div>
+        )}
       </section>
 
       <details className="panel guide nearby-apps">
@@ -283,27 +352,7 @@ export function NearbyView() {
 
       <section className="panel">
         <h3>{t('nearby.say')}</h3>
-        <ul className="nearby-phrases">
-          {NEARBY_PHRASES.map((p) => (
-            <li key={p.id}>
-              <div className="nearby-phrase-text">
-                <span className="meaning">{pick(p)}</span>
-                <Ja className="ja-line small">{p.ja}</Ja>
-                <span className="romaji" dir="ltr">{p.romaji}</span>
-              </div>
-              <div className="actions">
-                <SpeakButtons text={p.ja} slowButton={false} />
-                <button
-                  className="icon"
-                  aria-label={t('phrases.show')}
-                  onClick={() => setCard({ ja: p.ja, kana: p.kana, romaji: p.romaji, meaning: pick(p) })}
-                >
-                  <Icon name="card" size={20} />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {phraseList(NEARBY_PHRASES)}
       </section>
 
       <section className="panel">

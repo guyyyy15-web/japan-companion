@@ -6,6 +6,8 @@ export interface QuickSearch {
   icon: string
   label: Bi
   query: string
+  /** The same search limited to places reviews or listings call tattoo-friendly. */
+  tattoo?: string
 }
 
 export interface SearchCategory {
@@ -15,7 +17,13 @@ export interface SearchCategory {
   items: QuickSearch[]
 }
 
-const q = (id: string, icon: string, he: string, en: string, query: string): QuickSearch => ({ id, icon, label: { he, en }, query })
+const q = (id: string, icon: string, he: string, en: string, query: string, tattoo?: string): QuickSearch => ({
+  id,
+  icon,
+  label: { he, en },
+  query,
+  ...(tattoo ? { tattoo } : {}),
+})
 
 export const SEARCH_CATEGORIES: SearchCategory[] = [
   {
@@ -69,8 +77,11 @@ export const SEARCH_CATEGORIES: SearchCategory[] = [
       q('karaoke', '🎤', 'קריוקי', 'Karaoke', 'カラオケ'),
       q('gacha', '🥚', 'מכונות גאצ׳ה', 'Gacha machines', 'ガチャガチャ'),
       q('purikura', '📸', 'פוריקורה (תאי צילום)', 'Purikura photo booths', 'プリクラ'),
-      q('onsen', '♨️', 'אונסן ליום', 'Day-trip onsen', '日帰り温泉'),
-      q('sento', '🛁', 'מרחץ ציבורי', 'Public bath (sento)', '銭湯'),
+      q('onsen', '♨️', 'אונסן ליום', 'Day-trip onsen', '日帰り温泉', 'タトゥーOK 温泉'),
+      q('sento', '🛁', 'מרחץ ציבורי', 'Public bath (sento)', '銭湯', 'タトゥーOK 銭湯'),
+      q('sauna', '🧖', 'סאונה', 'Sauna', 'サウナ', 'タトゥーOK サウナ'),
+      q('gym', '🏋️', 'חדר כושר ליום', 'Gym (day pass)', 'ジム ドロップイン', 'タトゥーOK ジム'),
+      q('pool', '🏊', 'בריכה', 'Swimming pool', 'プール', 'タトゥーOK プール'),
       q('ashiyu', '🦶', 'אמבט רגליים', 'Foot bath', '足湯'),
       q('cat-cafe', '🐈', 'קפה חתולים', 'Cat café', '猫カフェ'),
       q('animal-cafe', '🦔', 'קפה חיות', 'Animal café', '動物カフェ'),
@@ -106,6 +117,37 @@ export const SEARCH_CATEGORIES: SearchCategory[] = [
       q('tax-free', '🧾', 'חנות פטורה ממס', 'Tax-free shop', '免税店'),
     ],
   },
+]
+
+/** Tattoo-friendly mode: the searches above that have a tattoo variant, plus options that are always fine. */
+export const TATTOO_EXTRA: QuickSearch[] = [
+  q('private-bath', '🔒', 'אמבט פרטי להשכרה (תמיד מותר)', 'Private bath for hire (always fine)', '貸切風呂'),
+  q('room-onsen', '🏯', 'ריוקן עם אונסן בחדר', 'Ryokan with a bath in the room', '客室露天風呂付き 旅館'),
+  q('tattoo-en', '🔎', 'ביקורות באנגלית: tattoo friendly', 'English reviews: tattoo friendly', 'tattoo friendly onsen'),
+]
+
+export const TATTOO_SEARCHES: QuickSearch[] = [
+  ...SEARCH_CATEGORIES.flatMap((c) => c.items)
+    .filter((s) => s.tattoo)
+    .map((s) => ({ ...s, query: s.tattoo! })),
+  ...TATTOO_EXTRA,
+]
+
+export const TATTOO_SITE = { name: 'Tattoo Friendly', url: 'https://tattoo-friendly.jp/' }
+
+export const TATTOO_TIPS: Bi[] = [
+  { he: 'הרבה אונסנים, "סופר סנטו", בריכות וחדרי כושר אוסרים קעקועים גלויים. תמיד בודקים לפני שנוסעים, כי המדיניות משתנה.', en: 'Many onsen, "super sento", pools and gyms ban visible tattoos. Always check before you go; policies change.' },
+  { he: 'השלט 刺青・タトゥーお断り פירושו "אין כניסה עם קעקועים". タトゥーOK פירושו מותר.', en: 'The sign 刺青・タトゥーお断り means "no tattoos". タトゥーOK means they\'re allowed.' },
+  { he: 'הפתרון הבטוח: אמבט פרטי (貸切風呂) או חדר בריוקן עם אונסן צמוד. אף אחד לא בודק.', en: 'The sure thing: a private bath (貸切風呂) or a ryokan room with its own bath. Nobody checks.' },
+  { he: 'קעקוע קטן? הרבה מקומות מקבלים אם הוא מכוסה במדבקת כיסוי (タトゥーカバーシール), שנמכרת בבתי מרקחת ובדון קיחוטה.', en: 'Small tattoo? Many places accept it covered with a cover sticker (タトゥーカバーシール), sold at drugstores and Don Quijote.' },
+  { he: 'במרחצאות השכונתיים (銭湯) בדרך כלל מקלים יותר מאשר באונסנים של אתרי נופש, אבל כל מקום מחליט לבד.', en: 'Neighbourhood sento are usually more relaxed than resort onsen, but each bath decides.' },
+  { he: 'רשתות הכושר Anytime Fitness ו-Gold\'s Gym מאפשרות מתאמנים עם קעקועים רק אם הקעקוע מכוסה לגמרי (שרוול ארוך או טייפ).', en: 'Gym chains Anytime Fitness and Gold\'s Gym take tattooed members only if the tattoo is fully covered (long sleeves or tape).' },
+]
+
+export const TATTOO_PHRASES: NearbyPhrase[] = [
+  { id: 'tattoo-enter', ja: 'タトゥーがありますが、入れますか', kana: 'タトゥーがありますが、はいれますか', romaji: 'tatū ga arimasu ga, hairemasu ka', he: 'יש לי קעקוע, אפשר להיכנס?', en: 'I have a tattoo. Can I go in?' },
+  { id: 'tattoo-sticker', ja: 'シールで隠せば大丈夫ですか', kana: 'シールでかくせばだいじょうぶですか', romaji: 'shīru de kakuseba daijōbu desu ka', he: 'זה בסדר אם אכסה אותו במדבקה?', en: 'Is it OK if I cover it with a sticker?' },
+  { id: 'private-bath', ja: '貸切風呂はありますか', kana: 'かしきりぶろはありますか', romaji: 'kashikiri buro wa arimasu ka', he: 'יש אמבט פרטי להשכרה?', en: 'Do you have a private bath?' },
 ]
 
 /** Every quick search, for free-text matching. */
