@@ -9,6 +9,8 @@
 // A category is only published when it passes the coverage check at the bottom (see COVERAGE).
 // Data © OpenStreetMap contributors, ODbL.
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 const ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
@@ -20,6 +22,8 @@ const FACILITIES = new URL('../public/data/facilities.json', import.meta.url)
 const PAUSE_MS = 6000
 const MIN_SPAN = 0.25
 const SCALE = 1e4 // ~10 m, plenty for walking directions
+// Finished boxes are kept here so a re-run after a failure resumes instead of starting over.
+const CACHE = process.env.CACHE ?? join(tmpdir(), 'jc-places-cache')
 
 const REGIONS = process.env.BOX
   ? [process.env.BOX.split(',').map(Number)]
@@ -80,8 +84,12 @@ function parse(tsv) {
   })
 }
 
+/** Mirrors that failed to connect are skipped for the rest of the run instead of timing out every time. */
+const dead = new Set()
+
 async function fetchBox(box) {
   for (const ep of ENDPOINTS) {
+    if (dead.has(ep)) continue
     try {
       const res = await fetch(ep, {
         method: 'POST',
@@ -96,8 +104,9 @@ async function fetchBox(box) {
         const rows = !text.includes('runtime error') && parse(text)
         if (rows) return rows
       }
-    } catch {
-      // try the next endpoint
+    } catch (e) {
+      // A connection failure (not a slow query) means the mirror is down.
+      if (e?.name !== 'TimeoutError' && ep !== ENDPOINTS[0]) dead.add(ep)
     }
     await sleep(PAUSE_MS)
   }
@@ -106,10 +115,19 @@ async function fetchBox(box) {
 
 async function collect(box, depth = 0) {
   const pad = '  '.repeat(depth)
+  const file = join(CACHE, `${EXTRA ? 'extra-' : ''}${box.join('_')}.json`)
+  try {
+    const cached = JSON.parse(await readFile(file, 'utf8'))
+    console.log(`${pad}✓ ${box.join(',')}: ${cached.length} (cached)`)
+    return cached
+  } catch {
+    // not fetched yet
+  }
   const rows = await fetchBox(box)
   await sleep(PAUSE_MS)
   if (rows) {
     console.log(`${pad}✓ ${box.join(',')}: ${rows.length}`)
+    await writeFile(file, JSON.stringify(rows))
     return rows
   }
   const [s, w, n, e] = box
@@ -117,8 +135,8 @@ async function collect(box, depth = 0) {
   console.log(`${pad}↳ splitting ${box.join(',')}`)
   const ms = (s + n) / 2
   const mw = (w + e) / 2
-  const out = []
-  for (const p of [[s, w, ms, mw], [s, mw, ms, e], [ms, w, n, mw], [ms, mw, n, e]]) out.push(...(await collect(p, depth + 1)))
+  let out = []
+  for (const p of [[s, w, ms, mw], [s, mw, ms, e], [ms, w, n, mw], [ms, mw, n, e]]) out = out.concat(await collect(p, depth + 1))
   return out
 }
 
@@ -231,8 +249,10 @@ const RULES = EXTRA ? EXTRA_RULES : MAIN_RULES
 
 // ---- Run ----
 
-const rows = []
-for (const r of REGIONS) rows.push(...(await collect(r)))
+await mkdir(CACHE, { recursive: true })
+let rows = []
+// concat, not push(...rows): a region can have 200,000 rows, more than the call stack takes as arguments.
+for (const r of REGIONS) rows = rows.concat(await collect(r))
 
 const seen = new Set()
 const buckets = Object.fromEntries(Object.keys(RULES).map((k) => [k, []]))
