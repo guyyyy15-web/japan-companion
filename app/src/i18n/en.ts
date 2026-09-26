@@ -64,7 +64,7 @@ export const en = {
   'nearby.alsoGoogle': 'Also search in Google Maps',
   'nearby.hasList': 'Nearest list in the app',
   'nearby.listNote': '📍 = the nearest ones right here in the app, with names and a map (OpenStreetMap). The others open Google Maps.',
-  'nearby.saveAll': 'Save all places for offline (about 5 MB)',
+  'nearby.saveAll': 'Save all places for offline (about 7 MB)',
   'nearby.saving': 'Saving… {done}/{total}',
   'nearby.saved': 'All places saved: the lists work offline',
   'nearby.trashMap': 'Japan Trash Can Map',

@@ -211,7 +211,8 @@ const funQueries = await page.$$eval('.nearby-search .quick-ja', (els) => els.ma
 check(funQueries.includes('ゲームセンター') && funQueries.includes('日帰り温泉'), 'nearby: "fun" category searches arcades and onsen')
 await page.fill('.nearby-search input', 'ראמן')
 const typed = await page.$$eval('.nearby-search .quick', (els) => els.map((e) => e.getAttribute('href')))
-check(typed[0].endsWith(encodeURIComponent('ראמן')) && typed.includes('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('ラーメン')), 'nearby: typing "ראמן" offers the Japanese ラーメン search')
+const ramenListed = await page.$$eval('.nearby-search .quick.listed .quick-ja', (els) => els.map((e) => e.textContent))
+check(typed[0].endsWith(encodeURIComponent('ראמן')) && ramenListed.includes('ラーメン'), 'nearby: typing "ראמן" offers the ラーメン list and a Google search')
 await page.fill('.nearby-search input', '')
 
 // In-app lists: a quick search with downloaded places shows the nearest ones, named, with a map and Google Maps.

@@ -65,7 +65,7 @@ export const he: Record<Key, string> = {
   'nearby.alsoGoogle': 'לחפש גם בגוגל מפות',
   'nearby.hasList': 'רשימת הקרובים באפליקציה',
   'nearby.listNote': '📍 = הקרובים ביותר ישר באפליקציה, עם שמות ומפה (OpenStreetMap). השאר נפתחים בגוגל מפות.',
-  'nearby.saveAll': 'לשמור את כל המקומות לשימוש בלי אינטרנט (כ-5MB)',
+  'nearby.saveAll': 'לשמור את כל המקומות לשימוש בלי אינטרנט (כ-7MB)',
   'nearby.saving': 'שומר… {done}/{total}',
   'nearby.saved': 'כל המקומות נשמרו, והרשימות עובדות גם בלי אינטרנט',
   'nearby.trashMap': 'מפת פחים ביפן',

@@ -191,7 +191,7 @@ const MAIN_RULES = {
   // Fun
   arcade: (r) => r.leisure === 'amusement_arcade' || has(nm(r), /ゲームセンター|GiGO|タイトーステーション|ラウンドワン|Round ?1|namco/i),
   karaoke: (r) => r.amenity === 'karaoke_box' || (!!r.amenity && has(nm(r), /カラオケ|ビッグエコー|まねきねこ|ジャンカラ|karaoke/i)),
-  gacha: (r) => !!r.shop && has(nm(r), /ガチャ|ガシャポン|gashapon|gacha/i),
+  // gacha: OSM maps only the few dedicated stores, while machines are everywhere, so it stays a Google search.
   onsen: (r) => r.amenity === 'public_bath' && (r['bath:type'] === 'onsen' || has(r.name, /温泉|onsen/i)),
   sento: (r) => r.amenity === 'public_bath' && r['bath:type'] !== 'onsen' && !has(r.name, /温泉|足湯/),
   ashiyu: (r) => r.amenity === 'public_bath' && (r['bath:type'] === 'foot_bath' || has(r.name, /足湯/)),

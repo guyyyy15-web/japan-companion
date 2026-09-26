@@ -48,7 +48,7 @@ thousands of pharmacies. So the quick searches now have their own data:
   5 test points (Tokyo Station, Shinjuku, Namba, Kyoto Station, Sapporo Station) or ≥ 1 within 20 km in
   4 of 5 (for chains like Pokémon Center). Categories that fail stay as Google Maps links.
 - Output: `public/data/places/<id>.json` (`[lat×1e4, lon×1e4, name?, englishName?]`) and `index.json`
-  with the counts. The service worker does **not** precache them (≈10 MB); each loads when first
+  with the counts. The service worker does **not** precache them (≈21 MB raw, 7 MB compressed); each loads when first
   opened and is then cached (StaleWhileRevalidate). "Save all places for offline" fetches them all.
 - In the app: tiles with a 📍 open the nearest 10 (up to 50 within 50 km), named in Japanese and
   English when known, with distance, arrow, walking directions, all of them on a map, and the Google
