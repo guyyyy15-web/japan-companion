@@ -8,8 +8,9 @@ import { useI18n } from '../../i18n'
 import { SpeakButtons } from '../../components/SpeakButtons'
 import { matches } from '../../lib/search'
 import { load, save } from '../../lib/storage'
+import { Practice } from './Practice'
 
-type Filter = 'favorites' | 'listening' | Category
+type Filter = 'favorites' | 'listening' | 'practice' | Category
 const FAV_KEY = 'jc.favorites'
 
 export function PhrasesView() {
@@ -29,13 +30,14 @@ export function PhrasesView() {
     { id: 'favorites' as Filter, label: t('phrases.favorites') },
     ...CATEGORIES.map((c) => ({ id: c as Filter, label: t(`cat.${c}`) })),
     { id: 'listening' as Filter, label: t('phrases.listening') },
+    { id: 'practice' as Filter, label: `🎴 ${t('practice.title')}` },
   ]
 
   const list = useMemo(() => {
     const q = query.trim()
     if (q) return phrases.filter((p) => matches(q, [p.ja, p.kana, p.romaji, p.he_pron, p.he, p.en]))
     if (filter === 'favorites') return favs.map((id) => phrases.find((p) => p.id === id)).filter((p): p is Phrase => !!p)
-    if (filter === 'listening') return []
+    if (filter === 'listening' || filter === 'practice') return []
     return phrases.filter((p) => p.cat === filter)
   }, [query, filter, favs])
 
@@ -52,7 +54,9 @@ export function PhrasesView() {
       />
       {!query.trim() && <Chips items={chips} value={filter} onChange={setFilter} />}
 
-      {showListening ? (
+      {!query.trim() && filter === 'practice' ? (
+        <Practice favs={favs} />
+      ) : showListening ? (
         <ul className="cards">
           {listening.map((l) => (
             <li key={l.id} className="card">

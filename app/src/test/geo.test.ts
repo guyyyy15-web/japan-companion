@@ -41,9 +41,21 @@ describe('geo', () => {
   })
 
   it('decodes the compact data file', () => {
-    const f = decode({ source: 'OSM', updated: '2026-09-25', scale: 1e5, toilets: [[3568120, 13976710, 1]], bins: [[3568520, 13975280]] })
+    const f = decode({
+      source: 'OSM',
+      updated: '2026-09-25',
+      scale: 1e5,
+      toilets: [[3568120, 13976710, 1]],
+      bins: [[3568520, 13975280]],
+      konbini: [[3568120, 13976710, 2], [3568520, 13975280]],
+    })
     expect(f.toilets[0]).toEqual({ lat: 35.6812, lon: 139.7671, paid: true })
     expect(f.bins[0]).toEqual({ lat: 35.6852, lon: 139.7528 })
+    expect(f.konbini).toEqual([{ lat: 35.6812, lon: 139.7671, brand: 2 }, { lat: 35.6852, lon: 139.7528 }])
+  })
+
+  it('reads an older data file without konbini', () => {
+    expect(decode({ source: 'OSM', updated: '2026-09-25', scale: 1e5, toilets: [], bins: [] }).konbini).toEqual([])
   })
 
   it('builds Google Maps links', () => {
