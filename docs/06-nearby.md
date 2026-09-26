@@ -1,4 +1,4 @@
-# 6. Nearby: toilets and trash cans
+# 6. Nearby: toilets, trash cans, konbini, searches and local apps
 
 ## Why two layers
 - **Google Maps links** know toilets well but barely list bins, and need internet.
@@ -20,6 +20,19 @@
 - The list shows the nearest 8 within 3 km. Arrows are north-up until you tap
   "compass" (iOS asks for motion permission once), then they rotate with the phone.
 - The map (Leaflet + OSM tiles) is lazy-loaded and only offered online.
+
+## Konbini (v0.8)
+- Also in the offline file: `shop=convenience` nodes and ways, with a brand code as the third number
+  (1 = 7-Eleven, 2 = Lawson, 3 = FamilyMart, missing = other). A konbini is the practical answer to
+  "toilet, ATM, bin, food or water", so it gets its own offline list.
+
+## Searches and apps
+- `content/nearby.ts` → `SEARCH_CATEGORIES`: four groups of Google Maps searches, with the
+  Japanese query shown under each label (it doubles as vocabulary). The search box filters them by
+  Hebrew, English or Japanese, and can also send the typed text to Google Maps as is.
+- `LOCAL_APPS`: apps and sites Japanese people use (Tabelog, Hot Pepper, Yahoo! 乗換案内, GO,
+  ecbo cloak, tenki.jp and its autumn-leaves forecast…). Every URL was checked to return 200 when added.
+  Sites that block bots (Uniqlo, Yodobashi…) were left out rather than linked blind.
 
 ## Freshness
 `.github/workflows/refresh-facilities.yml` runs monthly (and on demand). It re-downloads

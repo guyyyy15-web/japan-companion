@@ -3,8 +3,13 @@ export interface LatLon {
   lon: number
 }
 
+/** Konbini brand codes written by scripts/fetch-facilities.mjs. */
+export type Brand = 1 | 2 | 3
+export const BRAND_NAMES: Record<Brand, string> = { 1: '7-Eleven', 2: 'Lawson', 3: 'FamilyMart' }
+
 export interface Facility extends LatLon {
   paid?: boolean
+  brand?: Brand
 }
 
 export interface Facilities {
@@ -12,20 +17,30 @@ export interface Facilities {
   updated: string
   toilets: Facility[]
   bins: Facility[]
+  konbini: Facility[]
 }
 
-/** The compact file written by scripts/fetch-facilities.mjs: [lat×1e5, lon×1e5, paidFlag?]. */
+/** The compact file written by scripts/fetch-facilities.mjs: [lat×1e5, lon×1e5, flag?] (paid toilet, or konbini brand). */
 export interface FacilitiesFile {
   source: string
   updated: string
   scale: number
   toilets: number[][]
   bins: number[][]
+  konbini?: number[][]
 }
 
 export function decode(file: FacilitiesFile): Facilities {
-  const toPoint = ([la, lo, flag]: number[]): Facility => ({ lat: la / file.scale, lon: lo / file.scale, ...(flag ? { paid: true } : {}) })
-  return { source: file.source, updated: file.updated, toilets: file.toilets.map(toPoint), bins: file.bins.map(toPoint) }
+  const at = ([la, lo]: number[]): Facility => ({ lat: la / file.scale, lon: lo / file.scale })
+  const toilet = (p: number[]): Facility => (p[2] ? { ...at(p), paid: true } : at(p))
+  const shop = (p: number[]): Facility => (p[2] ? { ...at(p), brand: p[2] as Brand } : at(p))
+  return {
+    source: file.source,
+    updated: file.updated,
+    toilets: file.toilets.map(toilet),
+    bins: file.bins.map(at),
+    konbini: (file.konbini ?? []).map(shop),
+  }
 }
 
 const R = 6371000

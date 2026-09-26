@@ -1,4 +1,4 @@
-// Downloads every public toilet and trash bin in Japan from OpenStreetMap (Overpass API) and writes
+// Downloads every public toilet, trash bin and konbini in Japan from OpenStreetMap (Overpass API) and writes
 // a compact offline file for the Nearby tab: public/data/facilities.json.
 //
 //   node scripts/fetch-facilities.mjs
@@ -40,6 +40,8 @@ function query([s, w, n, e]) {
   node[amenity=waste_basket](${bb});
   node[amenity=recycling]["recycling:cans"=yes](${bb});
   node[amenity=recycling]["recycling:plastic_bottles"=yes](${bb});
+  node[shop=convenience](${bb});
+  way[shop=convenience](${bb});
 );
 out center tags;`
 }
@@ -89,39 +91,58 @@ async function collect(box, depth = 0) {
   return out
 }
 
+// Konbini brand codes (third number in each point): the big three have ATMs and toilets you can ask for.
+const BRANDS = [
+  [1, /セブン|7-eleven|seven/i],
+  [2, /ローソン|lawson/i],
+  [3, /ファミリーマート|ファミマ|familymart/i],
+]
+
+function brandCode(t) {
+  const text = [t.brand, t['brand:en'], t.name, t['name:en']].filter(Boolean).join(' ')
+  return BRANDS.find(([, re]) => re.test(text))?.[0] ?? 0
+}
+
 /** Keep public, free-to-enter places; round to ~1 m; one entry per OSM object. */
 export function compact(elements) {
   const seen = new Set()
   const toilets = []
   const bins = []
+  const konbini = []
   for (const el of elements) {
     const key = `${el.type}/${el.id}`
     if (seen.has(key)) continue
     seen.add(key)
     const t = el.tags ?? {}
-    if (['private', 'no', 'customers'].includes(t.access)) continue
+    const isShop = t.shop === 'convenience'
+    if (!isShop && ['private', 'no', 'customers'].includes(t.access)) continue
     const lat = el.lat ?? el.center?.lat
     const lon = el.lon ?? el.center?.lon
     if (typeof lat !== 'number' || typeof lon !== 'number') continue
     const pt = [Math.round(lat * 1e5), Math.round(lon * 1e5)]
-    if (t.amenity === 'toilets') {
+    if (isShop) {
+      const b = brandCode(t)
+      if (b) pt.push(b)
+      konbini.push(pt)
+    } else if (t.amenity === 'toilets') {
       if (t.fee === 'yes') pt.push(1) // flag: paid toilet
       toilets.push(pt)
     } else bins.push(pt)
   }
-  return { toilets, bins }
+  return { toilets, bins, konbini }
 }
 
 const all = []
 for (const r of REGIONS) all.push(...(await collect(r)))
-const { toilets, bins } = compact(all)
+const { toilets, bins, konbini } = compact(all)
 const data = {
   source: 'OpenStreetMap contributors (ODbL)',
   updated: new Date().toISOString().slice(0, 10),
   scale: 1e5,
   toilets,
   bins,
+  konbini,
 }
 await mkdir(new URL('.', OUT), { recursive: true })
 await writeFile(OUT, JSON.stringify(data))
-console.log(`toilets ${toilets.length}, bins ${bins.length} → ${OUT.pathname}`)
+console.log(`toilets ${toilets.length}, bins ${bins.length}, konbini ${konbini.length} → ${OUT.pathname}`)
