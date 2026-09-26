@@ -80,6 +80,20 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: 'autumn',
+    icon: '🍁',
+    title: { he: 'סתיו ביפן (ספטמבר–נובמבר)', en: 'Autumn in Japan (Sep–Nov)' },
+    points: [
+      { he: 'מזג אוויר באוקטובר: טוקיו, קיוטו ואוסקה בערך 15–22°. בהוקאידו קר יותר, 7–16°, אז קחו מעיל.', en: 'October weather: Tokyo, Kyoto and Osaka around 15–22°C. Hokkaido is colder, 7–16°C, so bring a jacket.' },
+      { he: 'בתחילת אוקטובר עוד יכול להגיע טייפון. אפליקציית Safety tips (בלשונית בסביבה) מתריעה באנגלית.', en: 'Early October can still bring a typhoon. The Safety tips app (in Nearby) alerts in English.' },
+      { he: 'שלכת: בהוקאידו היא מתחילה כבר בסוף ספטמבר ובאוקטובר, בטוקיו ובקיוטו רק בסוף נובמבר. "紅葉" = שלכת.', en: 'Autumn leaves: Hokkaido turns from late September into October; Tokyo and Kyoto only in late November. 紅葉 (kōyō) = autumn leaves.' },
+      { he: 'אוכל של העונה: סנמה (דג צלוי), ערמונים (栗), בטטה צלויה (焼き芋), אפרסמון (柿), ובהוקאידו איקורה טרייה.', en: 'Food of the season: grilled sanma (saury), chestnuts (栗), roasted sweet potato (焼き芋), persimmon (柿), and in Hokkaido fresh ikura (salmon roe).' },
+      { he: 'חפשו "秋限定" (מהדורת סתיו) על חטיפים, קיטקט ומשקאות בקונביני. באוקטובר גם מתחיל האודן בקונביני.', en: 'Look for 秋限定 (autumn limited) on snacks, Kit Kats and drinks. Konbini oden starts in October too.' },
+      { he: 'בקיוטו, 22 באוקטובר: ג׳ידאי מצוּרי, תהלוכת תלבושות היסטוריות ענקית.', en: 'Kyoto, 22 October: Jidai Matsuri, a huge parade in historical costume.' },
+      { he: 'בסוף שבוע השלישי של אוקטובר: פסטיבל קוואגואה (שעה מטוקיו) עם עגלות ענק מקושטות.', en: 'Third weekend of October: the Kawagoe Festival (an hour from Tokyo), with giant decorated floats.' },
+    ],
+  },
+  {
     id: 'etiquette',
     icon: '🙇',
     title: { he: 'נימוסים בשתי דקות', en: 'Etiquette in 2 minutes' },
