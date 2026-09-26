@@ -9,7 +9,7 @@ visitor well.
 2. **Money:** know what something costs in shekels and dollars, and handle a
    country that still runs on cash.
 
-> **Status:** v0.10: 🐉 "tattoo-friendly only" switch in Nearby (onsen, sento, sauna, gym, pool searches limited to タトゥーOK places, private-bath options, tips, phrases, and the Tattoo Friendly database). v0.9: konbini labels in Signs and a one-time ✨ "What's new" card after each update. v0.8: 👛 trip wallet, 🏨 saved places with a taxi card, 🎴 practice flashcards, 👟 size converter, 🍁 autumn guide; Nearby adds konbini, 60+ searches and local apps. v0.7 added the 📍 Nearby tab (toilets and bins). v0.6: The builder only offers sensible sentences (58 frames, 3,056 hand-checked
+> **Status:** v0.11: 📍 in-app nearest lists with names and a map for 60 quick searches (≈ 490,000 places across Japan from OpenStreetMap, checked for coverage in Tokyo, Shinjuku, Namba, Kyoto and Sapporo), 10 new searches, 8 new place words in the builder. v0.10: 🐉 "tattoo-friendly only" switch in Nearby (onsen, sento, sauna, gym, pool searches limited to タトゥーOK places, private-bath options, tips, phrases, and the Tattoo Friendly database). v0.9: konbini labels in Signs and a one-time ✨ "What's new" card after each update. v0.8: 👛 trip wallet, 🏨 saved places with a taxi card, 🎴 practice flashcards, 👟 size converter, 🍁 autumn guide; Nearby adds konbini, 60+ searches and local apps. v0.7 added the 📍 Nearby tab (toilets and bins). v0.6: The builder only offers sensible sentences (58 frames, 3,056 hand-checked
 > combinations), with long word lists folded behind "+N more". Light, modern Japanese design; 137 ready phrases; works offline.
 
 **Live app:** https://guyyyy15-web.github.io/japan-companion/ (deployed automatically

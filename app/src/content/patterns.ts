@@ -75,7 +75,7 @@ const SPOTS = ['toilet', 'exit', 'entrance', 'elevator', 'lockers', 'atm', 'tick
 const REGIONS = ['tokyo', 'yokohama', 'kyoto', 'osaka', 'nara', 'kobe', 'hiroshima', 'sapporo', 'otaru', 'hakodate', 'niseko', 'furano', 'biei']
 const AIRPORTS = ['airport', 'narita', 'haneda', 'kansai-airport', 'new-chitose']
 /** Small shops and services: a bus or train doesn't "go to" them. */
-const SHOPS = ['konbini', 'pharmacy', 'cafe', 'izakaya', 'ramen-shop', 'sushi-shop', 'bar', 'karaoke', 'drugstore', 'laundromat', 'bank', 'exchange', 'game-center', 'vintage-shop', 'anime-shop', 'electronics-store', 'used-game-shop', 'record-shop', 'cosmetics-shop', 'bookstore', 'supermarket', 'hundred-yen', 'post-office', 'koban', 'restaurant', 'tourist-info', 'depachika', 'flea-market']
+const SHOPS = ['konbini', 'pharmacy', 'cafe', 'izakaya', 'ramen-shop', 'sushi-shop', 'bar', 'karaoke', 'drugstore', 'laundromat', 'bank', 'exchange', 'game-center', 'vintage-shop', 'anime-shop', 'electronics-store', 'used-game-shop', 'record-shop', 'cosmetics-shop', 'bookstore', 'supermarket', 'hundred-yen', 'post-office', 'koban', 'restaurant', 'tourist-info', 'depachika', 'flea-market', 'gym', 'sauna', 'sento', 'cat-cafe', 'bakery', 'stationery-shop']
 /** Places without opening hours. */
 const NO_HOURS = ['station', 'subway', 'airport', 'hotel', 'toilet', 'bus-stop', 'taxi-stand', 'shinkansen', 'exit', 'entrance', 'elevator', 'lockers', 'koban', 'shopping-street', 'smoking-area', 'trash-can', 'konbini', 'nara-park', 'fushimi-inari']
 /** Table and counter items that are free or just part of the service. */

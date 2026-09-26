@@ -86,8 +86,8 @@ async function collect(box, depth = 0) {
     [ms, w, n, mw],
     [ms, mw, n, e],
   ]
-  const out = []
-  for (const p of parts) out.push(...(await collect(p, depth + 1)))
+  let out = []
+  for (const p of parts) out = out.concat(await collect(p, depth + 1))
   return out
 }
 
@@ -132,8 +132,8 @@ export function compact(elements) {
   return { toilets, bins, konbini }
 }
 
-const all = []
-for (const r of REGIONS) all.push(...(await collect(r)))
+let all = []
+for (const r of REGIONS) all = all.concat(await collect(r))
 const { toilets, bins, konbini } = compact(all)
 const data = {
   source: 'OpenStreetMap contributors (ODbL)',

@@ -11,6 +11,7 @@ import {
   TATTOO_TIPS,
   TRASH_MAP_URL,
   type NearbyPhrase,
+  type QuickSearch,
 } from '../../content/nearby'
 import { Ja } from '../../components/Ja'
 import { ShowCard, type CardContent } from '../../components/ShowCard'
@@ -18,6 +19,8 @@ import { SpeakButtons } from '../../components/SpeakButtons'
 import { Icon } from '../../components/Icon'
 import { useI18n } from '../../i18n'
 import { PlacesPanel } from './PlacesPanel'
+import { PlaceResults } from './PlaceResults'
+import { loadPlaces, loadPlacesIndex, type PlacesIndex } from '../../lib/places'
 import type { Key } from '../../i18n/en'
 import { matches } from '../../lib/search'
 import { load, save } from '../../lib/storage'
@@ -73,6 +76,10 @@ export function NearbyView() {
   const [card, setCard] = useState<CardContent | null>(null)
   const [category, setCategory] = useState(SEARCH_CATEGORIES[0].id)
   const [text, setText] = useState('')
+  // Categories with an in-app list (downloaded OpenStreetMap places); the rest open Google Maps.
+  const [placesIndex, setPlacesIndex] = useState<PlacesIndex | null>(null)
+  const [selected, setSelected] = useState<QuickSearch | null>(null)
+  const [saving, setSaving] = useState<{ done: number; total: number } | null>(null)
   // Tattoo-friendly mode: onsen, sento, sauna, gym and pool searches limited to places that allow tattoos.
   const [tattoo, setTattoo] = useState(() => load('jc.tattooFriendly', false))
   const toggleTattoo = () => {
@@ -82,6 +89,7 @@ export function NearbyView() {
   const watchId = useRef<number | null>(null)
 
   useEffect(() => {
+    loadPlacesIndex().then(setPlacesIndex)
     loadFacilities().then(setData, () => setData(null))
     return () => {
       if (watchId.current !== null) navigator.geolocation?.clearWatch(watchId.current)
@@ -115,6 +123,24 @@ export function NearbyView() {
       const h = ev.webkitCompassHeading ?? (ev.alpha !== null ? 360 - ev.alpha : null)
       if (h !== null && h !== undefined) setHeading(h)
     })
+  }
+
+  const listed = (q: QuickSearch) => (tattoo ? undefined : placesIndex?.categories[q.id])
+
+  const openList = (q: QuickSearch) => {
+    setSelected(q)
+    if (status !== 'ready' && status !== 'locating') locate()
+    requestAnimationFrame(() => document.getElementById('place-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }
+
+  // Fetch every category once so the lists work offline (the service worker keeps them).
+  const saveAll = async () => {
+    const ids = Object.keys(placesIndex?.categories ?? {})
+    setSaving({ done: 0, total: ids.length })
+    for (const [i, id] of ids.entries()) {
+      await loadPlaces(id).catch(() => undefined)
+      setSaving({ done: i + 1, total: ids.length })
+    }
   }
 
   const current = KINDS.find((k) => k.id === kind)!
@@ -276,6 +302,18 @@ export function NearbyView() {
             ))}
           </div>
         )}
+        {selected && !tattoo && placesIndex?.categories[selected.id] && (
+          <PlaceResults
+            key={selected.id}
+            search={selected}
+            total={placesIndex.categories[selected.id]}
+            here={here}
+            heading={heading}
+            locating={status === 'locating'}
+            onLocate={locate}
+            onClose={() => setSelected(null)}
+          />
+        )}
         <div className="quick-grid">
           {typed && (
             <a className="quick typed" href={searchUrl(typedQuery)} target="_blank" rel="noopener noreferrer">
@@ -285,15 +323,31 @@ export function NearbyView() {
               </span>
             </a>
           )}
-          {searches.map((q) => (
-            <a key={q.id} className="quick" href={searchUrl(q.query)} target="_blank" rel="noopener noreferrer">
-              <span aria-hidden>{q.icon}</span>
-              <span className="quick-text">
-                <span>{pick(q.label)}</span>
-                <Ja className="quick-ja">{q.query}</Ja>
-              </span>
-            </a>
-          ))}
+          {searches.map((q) =>
+            listed(q) ? (
+              <button
+                key={q.id}
+                className={selected?.id === q.id ? 'quick listed active' : 'quick listed'}
+                aria-pressed={selected?.id === q.id}
+                onClick={() => openList(q)}
+              >
+                <span aria-hidden>{q.icon}</span>
+                <span className="quick-text">
+                  <span>{pick(q.label)}</span>
+                  <Ja className="quick-ja">{q.query}</Ja>
+                </span>
+                <span className="quick-pin" aria-label={t('nearby.hasList')}>📍</span>
+              </button>
+            ) : (
+              <a key={q.id} className="quick" href={searchUrl(q.query)} target="_blank" rel="noopener noreferrer">
+                <span aria-hidden>{q.icon}</span>
+                <span className="quick-text">
+                  <span>{pick(q.label)}</span>
+                  <Ja className="quick-ja">{q.query}</Ja>
+                </span>
+              </a>
+            ),
+          )}
           {!typed && !tattoo && category === 'essentials' && (
             <a className="quick" href={TRASH_MAP_URL} target="_blank" rel="noopener noreferrer">
               <span aria-hidden>🗺️</span>
@@ -303,7 +357,16 @@ export function NearbyView() {
             </a>
           )}
         </div>
-        <p className="muted small-start">{t(tattoo ? 'nearby.tattooNote' : 'nearby.searchNote')}</p>
+        <p className="muted small-start">{t(tattoo ? 'nearby.tattooNote' : placesIndex ? 'nearby.listNote' : 'nearby.searchNote')}</p>
+        {placesIndex && !tattoo && (
+          <button className="link" onClick={saveAll} disabled={!!saving && saving.done < saving.total}>
+            {!saving
+              ? `⬇️ ${t('nearby.saveAll')}`
+              : saving.done < saving.total
+                ? `⬇️ ${t('nearby.saving', { done: String(saving.done), total: String(saving.total) })}`
+                : `✓ ${t('nearby.saved')}`}
+          </button>
+        )}
         {tattoo && (
           <div className="tattoo-panel">
             <a className="app-link" href={TATTOO_SITE.url} target="_blank" rel="noopener noreferrer">
