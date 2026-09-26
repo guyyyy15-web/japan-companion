@@ -90,6 +90,25 @@ check(outs.some((t) => t.includes('₪')) && outs.some((t) => t.includes('$')), 
 check((await page.textContent('.rate-line')).includes('שער עדכני'), 'live rate picked up')
 await page.screenshot({ path: `${OUT}he-money-5000.png`, fullPage: true })
 
+// Trip wallet: log the ¥5,000 as shopping, paid in cash.
+await page.click('.cat-btn:has-text("קניות")')
+await page.click('.wallet-add .seg-btn:has-text("מזומן")')
+await page.fill('.wallet-add input', 'Tamagotchi')
+await page.click('.wallet-add .primary-btn')
+const walletTotal = await page.textContent('.wallet-total')
+const walletItems = await page.$$eval('.wallet-items li', (els) => els.map((e) => e.textContent))
+check(walletTotal.includes('5,000') && walletTotal.includes('₪') && walletItems.length === 1 && walletItems[0].includes('Tamagotchi'), `wallet: logged ¥5,000 → ${walletTotal}`)
+check(!(await page.isVisible('.wallet-add')), 'wallet: the converter clears after adding')
+await page.screenshot({ path: `${OUT}he-wallet.png`, fullPage: true })
+await page.reload()
+await page.click('.tab:has-text("כסף")')
+check((await page.$$eval('.wallet-items li', (els) => els.length)) === 1, 'wallet: entries survive a reload')
+
+// Sizes in the guide.
+await page.click('.tab:has-text("מדריך")')
+await page.click('#sizes summary')
+check((await page.textContent('.size-big')).includes('24 cm'), 'sizes: EU 38 → 24 cm')
+
 // Builder: group tabs → frame → word, for each group.
 const resultJa = () => page.textContent('.builder-result .result-ja')
 // Picking a frame folds the grid into a bar; "change" opens it again.
@@ -147,6 +166,20 @@ check(await page.isVisible('.showcard-ja'), 'show-card opens with Japanese text'
 await page.screenshot({ path: `${OUT}he-showcard.png` })
 await page.click('.showcard-actions .primary')
 
+// Practice: reveal, "again" keeps the card in the deck, "knew it" removes it.
+await page.click('.chip:has-text("תרגול")')
+await page.selectOption('.practice select', 'restaurant')
+const progress = () => page.textContent('.practice-progress')
+const before = await progress()
+await page.click('.practice .primary-btn')
+check(await page.isVisible('.practice-answer .practice-ja'), 'practice: the answer shows Japanese')
+await page.click('.practice-btn.again')
+check((await progress()) === before, `practice: "again" keeps the card (${before})`)
+await page.click('.practice .primary-btn')
+await page.click('.practice-btn.knew')
+check((await progress()) !== before, `practice: "knew it" counts (${await progress()})`)
+await page.screenshot({ path: `${OUT}he-practice.png` })
+
 // Nearby: nearest toilets and bins from the bundled OpenStreetMap data, with walking links.
 await page.click('.tab:has-text("בסביבה")')
 await page.click('.primary-btn')
@@ -171,9 +204,22 @@ await page.fill('.nearby-search input', 'ראמן')
 const typed = await page.$$eval('.nearby-search .quick', (els) => els.map((e) => e.getAttribute('href')))
 check(typed[0].endsWith(encodeURIComponent('ראמן')) && typed.includes('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('ラーメン')), 'nearby: typing "ראמן" offers the Japanese ラーメン search')
 await page.fill('.nearby-search input', '')
+await page.click('.nearby-apps summary')
 const apps = await page.$$eval('.app-link', (els) => els.map((e) => e.getAttribute('href')))
 check(apps.includes('https://tabelog.com/en/') && apps.length >= 15, `nearby: ${apps.length} local apps linked`)
 await page.screenshot({ path: `${OUT}he-nearby-search.png`, fullPage: true })
+
+// Saved places: a hotel address becomes a taxi card.
+await page.click('.places .link:has-text("הוספת מקום")')
+await page.fill('.place-form input', 'המלון בקיוטו')
+await page.fill('.place-form textarea', '京都府京都市下京区東塩小路町901')
+await page.click('.place-form .primary-btn')
+await page.click('.place-list button:has-text("כרטיס למונית")')
+const lead = await page.textContent('.showcard-lead')
+const addr = await page.textContent('.showcard-ja')
+check(lead === 'この住所までお願いします' && addr.includes('京都府'), 'places: hotel address opens as a taxi card')
+await page.screenshot({ path: `${OUT}he-taxi-card.png` })
+await page.click('.showcard-actions .primary')
 
 // Offline reload.
 await page.evaluate(() => navigator.serviceWorker.ready)
@@ -197,7 +243,7 @@ await se.addInitScript(FAKE_SPEECH, [{ name: 'Samantha', lang: 'en-US' }])
 const sp = await se.newPage()
 await sp.goto(URL_)
 await sp.waitForSelector('.tabbar')
-for (const tab of ['ביטויים', 'משפטים', 'שלטים', 'כסף', 'מדריך']) {
+for (const tab of ['ביטויים', 'משפטים', 'בסביבה', 'שלטים', 'כסף', 'מדריך']) {
   await sp.click(`.tab:has-text("${tab}")`)
   await sp.waitForTimeout(100)
   const { sw, iw } = await sp.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth }))

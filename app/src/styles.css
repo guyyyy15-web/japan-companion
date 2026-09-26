@@ -642,3 +642,31 @@ button.nearby-go { background: none; }
 .size-result { display: flex; align-items: baseline; gap: 10px; }
 .size-big { font-size: 1.8rem; font-weight: 700; color: var(--shu); }
 .sizes-table th { font-size: 0.8rem; color: var(--ink-2); font-weight: 600; text-align: start; }
+
+/* Practice */
+.practice { display: flex; flex-direction: column; gap: 10px; }
+.practice-controls { display: flex; flex-direction: column; gap: 8px; }
+.field.compact { margin-block-start: 0; }
+.practice-progress { font-size: 0.85rem; text-align: center; }
+.practice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 16px;
+  min-block-size: 260px;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.practice-prompt, .practice-answer { display: flex; flex-direction: column; align-items: center; gap: 8px; inline-size: 100%; }
+.practice-answer { border-block-start: 1px dashed var(--line); padding-block-start: 12px; }
+.practice-meaning { font-size: 1.25rem; font-weight: 600; }
+.practice-ja { font-size: 1.7rem; font-weight: 700; overflow-wrap: anywhere; }
+.practice-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; inline-size: 100%; margin-block-start: 6px; }
+.practice-btn { padding: 12px; border-radius: 12px; font-weight: 700; font-size: 1rem; border: 1px solid var(--line); background: var(--paper); }
+.practice-btn.knew { background: var(--ai); color: #fff; border-color: var(--ai); }
+.practice-btn.again { color: var(--shu); }

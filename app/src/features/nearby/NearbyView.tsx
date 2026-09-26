@@ -255,8 +255,10 @@ export function NearbyView() {
         <p className="muted small-start">{t('nearby.searchNote')}</p>
       </section>
 
-      <section className="panel">
-        <h3>📱 {t('nearby.apps')}</h3>
+      <details className="panel guide nearby-apps">
+        <summary>
+          <span aria-hidden>📱</span> {t('nearby.apps')}
+        </summary>
         <p className="muted small-start">{t('nearby.appsNote')}</p>
         {LOCAL_APPS.map((g) => (
           <div key={g.id} className="app-group">
@@ -277,7 +279,7 @@ export function NearbyView() {
             </ul>
           </div>
         ))}
-      </section>
+      </details>
 
       <section className="panel">
         <h3>{t('nearby.say')}</h3>
