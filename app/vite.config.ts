@@ -29,8 +29,22 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,json,woff2}'],
-        // The offline toilet/bin map (public/data/facilities.json) is ~1–2 MB; keep it precached.
+        // Places by category (data/places/*.json, ~10 MB in all) load when first opened, then stay cached.
+        globIgnores: ['**/data/places/**'],
+        // The offline toilet/bin/konbini map (public/data/facilities.json) is ~1.6 MB; keep it precached.
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.endsWith('/data/places/index.json'),
+            handler: 'NetworkFirst',
+            options: { cacheName: 'places-index', networkTimeoutSeconds: 4 },
+          },
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/data/places/'),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'places', expiration: { maxEntries: 120 } },
+          },
+        ],
       },
     }),
   ],

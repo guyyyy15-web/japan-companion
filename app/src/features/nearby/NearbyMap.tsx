@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import type { LatLon, Nearby, Facility } from '../../lib/geo'
+import type { LatLon, Nearby } from '../../lib/geo'
 import { directionsUrl } from '../../lib/geo'
 
-/** Online-only map: OpenStreetMap tiles, you, and the nearest places. Loaded lazily. */
-export default function NearbyMap({ here, places, color }: { here: LatLon; places: Nearby<Facility>[]; color: string }) {
+type Pin = LatLon & { name?: string; en?: string }
+
+const escape = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
+
+/** Online-only map: OpenStreetMap tiles, you, and the nearest places (named when known). Loaded lazily. */
+export default function NearbyMap({ here, places, color }: { here: LatLon; places: Nearby<Pin>[]; color: string }) {
   const el = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -20,7 +24,8 @@ export default function NearbyMap({ here, places, color }: { here: LatLon; place
     const pts: L.LatLngExpression[] = [[here.lat, here.lon]]
     places.forEach((p, i) => {
       const m = L.circleMarker([p.item.lat, p.item.lon], { radius: 7, color, fillColor: color, fillOpacity: 0.85, weight: 2 })
-      m.bindPopup(`<b>${i + 1}</b> · <a href="${directionsUrl(p.item)}" target="_blank" rel="noopener">Google Maps ↗</a>`)
+      const title = [p.item.name, p.item.en].filter(Boolean).map((t) => escape(t!)).join('<br>')
+      m.bindPopup(`<b>${i + 1}</b>${title ? ` · ${title}` : ''}<br><a href="${directionsUrl(p.item)}" target="_blank" rel="noopener">Google Maps ↗</a>`)
       m.addTo(map)
       pts.push([p.item.lat, p.item.lon])
     })

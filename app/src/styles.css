@@ -722,3 +722,15 @@ button.nearby-go { background: none; }
 .tattoo-toggle.on .tattoo-switch { background: var(--shu); }
 .tattoo-toggle.on .tattoo-switch::after { inset-inline-start: 19px; }
 .tattoo-panel { display: flex; flex-direction: column; gap: 10px; }
+
+/* In-app place lists */
+button.quick { font: inherit; text-align: start; cursor: pointer; }
+.quick.listed { position: relative; border-color: var(--ai); }
+.quick.listed.active { background: var(--ai-soft); }
+.quick-pin { margin-inline-start: auto; font-size: 0.75rem; flex: none; }
+.place-results { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--ai); border-radius: 14px; background: var(--card); scroll-margin-block-start: 80px; }
+.place-results-head { display: flex; justify-content: space-between; align-items: center; }
+.place-name { display: flex; flex-direction: column; min-width: 0; font-weight: 600; }
+.place-name .ja { overflow-wrap: anywhere; }
+.place-en { font-size: 0.78rem; font-weight: 400; color: var(--ink-2); overflow-wrap: anywhere; }
+.nearby-text { display: flex; flex-direction: column; }
