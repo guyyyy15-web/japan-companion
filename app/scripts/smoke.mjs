@@ -63,8 +63,9 @@ await page.waitForSelector('.tabbar')
 // What's new: shown once, each line jumps to its tab.
 check(await page.isVisible('.whatsnew'), "what's new card shows after an update")
 await page.screenshot({ path: `${OUT}he-whatsnew.png` })
-await page.click('.whatsnew-item:has-text("קעקועים")')
-check(await page.isVisible('.tattoo-toggle'), "what's new: the tattoo line opens the Nearby tab")
+// The first line of the current release notes points at the Nearby tab.
+await page.click('.whatsnew-item >> nth=0')
+check(await page.isVisible('.tattoo-toggle'), "what's new: the first line opens its tab (Nearby)")
 await page.reload()
 await page.waitForSelector('.tabbar')
 check(!(await page.isVisible('.whatsnew')), "what's new: not shown again")
