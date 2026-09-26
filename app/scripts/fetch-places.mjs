@@ -3,6 +3,7 @@
 //
 //   node scripts/fetch-places.mjs            # all of Japan
 //   BOX=35.6,139.65,35.75,139.85 node scripts/fetch-places.mjs   # a test area
+//   EXTRA=1 node scripts/fetch-places.mjs    # only the second set (supermarkets, cafés, parks…), merged into index.json
 //
 // Each region is one CSV query (small and fast); regions that time out are split into four and retried.
 // A category is only published when it passes the coverage check at the bottom (see COVERAGE).
@@ -34,7 +35,8 @@ const REGIONS = process.env.BOX
       [24.0, 122.9, 30.9, 131.4], // Okinawa & islands
     ]
 
-const COLUMNS = ['name', 'name:en', 'amenity', 'shop', 'leisure', 'tourism', 'cuisine', 'religion', 'railway', 'bath:type', 'sport', 'second_hand', 'brand', 'access']
+const COLUMNS = ['name', 'name:en', 'amenity', 'shop', 'leisure', 'tourism', 'cuisine', 'religion', 'railway', 'bath:type', 'sport', 'second_hand', 'brand', 'access', 'information']
+const EXTRA = !!process.env.EXTRA
 
 const SHOP_NAMES =
   'ドン・キホーテ|ドン･キホーテ|MEGAドン|ハードオフ|HARD ?OFF|オフハウス|ホビーオフ|ブックオフ|BOOK ?OFF|ポケモンセンター|ポケモンストア|古着|アニメイト|まんだらけ|らしんばん|駿河屋|ガチャ|ガシャポン|着物レンタル|レンタル着物'
@@ -42,6 +44,16 @@ const SHOP_NAMES =
 function query([s, w, n, e]) {
   const bb = `${s},${w},${n},${e}`
   const cols = ['::type', '::id', '::lat', '::lon', ...COLUMNS.map((c) => `"${c}"`)].join(',')
+  if (EXTRA)
+    return `[out:csv(${cols};true;"\\t")][timeout:300];
+(
+  nw[shop~"^(supermarket|bakery)$"](${bb});
+  nw[amenity~"^(cafe|taxi|bicycle_rental|drinking_water)$"](${bb});
+  nw[tourism=information][information=office](${bb});
+  nw[tourism~"^(museum|gallery|zoo|aquarium)$"](${bb});
+  nw[leisure=park][name](${bb});
+);
+out center;`
   return `[out:csv(${cols};true;"\\t")][timeout:300];
 (
   nw[amenity~"^(pharmacy|atm|bureau_de_change|police|hospital|clinic|doctors|post_office|restaurant|fast_food|cafe|karaoke_box|public_bath|place_of_worship|smoking_area|sauna|bar|pub)$"](${bb});
@@ -117,8 +129,22 @@ const cuisine = (r, re) => r.cuisine.split(';').some((c) => re.test(c.trim()))
 const eatery = (r) => /^(restaurant|fast_food|cafe|bar|pub)$/.test(r.amenity)
 const nm = (r) => `${r.name} ${r['name:en']} ${r.brand}`
 
+/** Second set (EXTRA=1): everyday places added after the first download. */
+const EXTRA_RULES = {
+  supermarket: (r) => r.shop === 'supermarket',
+  info: (r) => r.tourism === 'information' && r.information === 'office',
+  taxi: (r) => r.amenity === 'taxi',
+  water: (r) => r.amenity === 'drinking_water',
+  cafe: (r) => r.amenity === 'cafe',
+  bakery: (r) => r.shop === 'bakery',
+  park: (r) => r.leisure === 'park' && !!r.name,
+  museum: (r) => r.tourism === 'museum' || r.tourism === 'gallery',
+  zoo: (r) => r.tourism === 'zoo' || r.tourism === 'aquarium',
+  bike: (r) => r.amenity === 'bicycle_rental',
+}
+
 /** id → test. Ids match SEARCH_CATEGORIES items in src/content/nearby.ts. */
-export const RULES = {
+const MAIN_RULES = {
   // Essentials
   station: (r) => r.railway === 'station' && r.type === 'node',
   atm: (r) => r.amenity === 'atm' || r.amenity === 'post_office',
@@ -201,6 +227,8 @@ function coverage(points) {
   return { dense, sparse, ok: points.length >= 20 && (dense >= 4 || sparse >= 4) }
 }
 
+const RULES = EXTRA ? EXTRA_RULES : MAIN_RULES
+
 // ---- Run ----
 
 const rows = []
@@ -227,7 +255,7 @@ for (const r of rows) {
 }
 
 // Every 7-Eleven has a Seven Bank ATM that takes foreign cards; add them from the konbini data.
-try {
+if (!EXTRA) try {
   const fac = JSON.parse(await readFile(FACILITIES, 'utf8'))
   for (const [la, lo, brand] of fac.konbini ?? []) {
     if (brand === 1) buckets.atm.push([Math.round((la / fac.scale) * SCALE), Math.round((lo / fac.scale) * SCALE), 'セブン銀行ATM', '7-Eleven (Seven Bank ATM)'])
@@ -239,6 +267,14 @@ try {
 await mkdir(OUT, { recursive: true })
 const updated = new Date().toISOString().slice(0, 10)
 const index = { source: 'OpenStreetMap contributors (ODbL)', updated, scale: SCALE, categories: {} }
+// The second set adds to what the first run published.
+if (EXTRA) {
+  try {
+    index.categories = JSON.parse(await readFile(new URL('index.json', OUT), 'utf8')).categories
+  } catch {
+    // no first run yet
+  }
+}
 const report = []
 for (const [id, pts] of Object.entries(buckets)) {
   const cov = coverage(pts.map(([la, lo]) => [la / SCALE, lo / SCALE]))
