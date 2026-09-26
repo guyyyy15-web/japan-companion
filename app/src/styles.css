@@ -269,8 +269,10 @@ main {
   padding: 10px 14px;
 }
 .sign-kanji {
-  flex: none;
+  flex: 0 1 auto;
   min-width: 76px;
+  max-inline-size: 60%;
+  overflow-wrap: anywhere;
   text-align: center;
   font-family: var(--font-mincho);
   font-size: 1.7rem;
@@ -280,6 +282,7 @@ main {
   background: var(--shu-soft);
   color: var(--shu);
 }
+.sign-text { min-width: 0; }
 .sign-meaning { font-weight: 600; }
 .sign-reading { color: var(--ink-2); font-size: 0.9rem; }
 
@@ -679,3 +682,43 @@ button.nearby-go { background: none; }
 .whatsnew-item { display: flex; align-items: center; gap: 8px; inline-size: 100%; text-align: start; border: 0; background: none; padding: 6px 0; font-size: 0.88rem; color: var(--ink); }
 .whatsnew-item span:nth-child(2) { flex: 1; }
 .whatsnew-go { color: var(--shu); font-weight: 700; }
+
+/* Tattoo-friendly filter */
+.tattoo-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: start;
+}
+.tattoo-toggle.on { border-color: var(--shu); background: var(--shu-soft); }
+.tattoo-switch {
+  margin-inline-start: auto;
+  flex: none;
+  inline-size: 38px;
+  block-size: 22px;
+  border-radius: 999px;
+  background: var(--line);
+  position: relative;
+  transition: background 0.2s;
+}
+.tattoo-switch::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-start: 3px;
+  inline-size: 16px;
+  block-size: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.2s;
+}
+.tattoo-toggle.on .tattoo-switch { background: var(--shu); }
+.tattoo-toggle.on .tattoo-switch::after { inset-inline-start: 19px; }
+.tattoo-panel { display: flex; flex-direction: column; gap: 10px; }
