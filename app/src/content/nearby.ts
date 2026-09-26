@@ -20,7 +20,7 @@ export const TRASH_MAP_URL = 'https://japantrashmap.com/'
 export const NEARBY_TIPS: Bi[] = [
   { he: 'פחים ציבוריים כמעט לא קיימים ביפן. הכי בטוח: קונביני (הפחים ליד הכניסה או בפנים) או תחנת רכבת.', en: 'Public bins are rare in Japan. Safest bet: a konbini (bins by the door or inside) or a train station.' },
   { he: 'ליד מכונות שתייה יש כמעט תמיד פח לבקבוקים ולפחיות בלבד.', en: 'Vending machines almost always have a bin, for bottles and cans only.' },
-  { he: 'שירותים: בכל תחנת רכבת, בכלבו, בקניון, בפארקים וברוב הקונביני (מבקשים: トイレを借りてもいいですか).', en: 'Toilets: every station, department stores, malls, parks and most konbini (ask: トイレを借りてもいいですか).' },
+  { he: 'שירותים: בכל תחנת רכבת, בכלבו, בקניון, בפארקים וברוב הקונביני. בקונביני מבקשים רשות עם המשפט שלמעלה.', en: 'Toilets: every station, department stores, malls, parks and most konbini. At a konbini, ask with the phrase above.' },
   { he: 'אין פח? מחזיקים שקית קטנה ומרוקנים במלון. ככה עושים גם היפנים.', en: 'No bin? Carry a small bag and empty it at the hotel. That\'s what locals do.' },
 ]
 
