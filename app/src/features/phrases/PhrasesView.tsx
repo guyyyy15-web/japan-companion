@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CATEGORIES, listening, phrases, type Category, type Phrase } from '../../content'
+import { CATEGORIES, LISTEN_PLACES, listening, phrases, type Category, type ListenPlace, type Phrase } from '../../content'
 import { Chips } from '../../components/Chips'
 import { Icon } from '../../components/Icon'
 import { Ja } from '../../components/Ja'
@@ -19,6 +19,7 @@ export function PhrasesView() {
   const [query, setQuery] = useState('')
   const [favs, setFavs] = useState<string[]>(() => load<string[]>(FAV_KEY, []))
   const [card, setCard] = useState<CardContent | null>(null)
+  const [place, setPlace] = useState<'all' | ListenPlace>('all')
 
   const toggleFav = (id: string) => {
     const next = favs.includes(id) ? favs.filter((f) => f !== id) : [...favs, id]
@@ -57,23 +58,59 @@ export function PhrasesView() {
       {!query.trim() && filter === 'practice' ? (
         <Practice favs={favs} />
       ) : showListening ? (
-        <ul className="cards">
-          {listening.map((l) => (
-            <li key={l.id} className="card">
-              <div className="row">
-                <Ja className="ja-line">{l.ja}</Ja>
-                <div className="actions">
-                  <SpeakButtons text={l.ja} slowButton={false} />
-                </div>
-              </div>
-              <div className="romaji" dir="ltr">{l.romaji}</div>
-              <div className="meaning">{pick(l)}</div>
-              <div className="reply">
-                <strong>{t('phrases.reply')}:</strong> {lang === 'he' ? l.reply_he : l.reply_en}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <Chips
+            items={[
+              { id: 'all' as const, label: t('signs.all') },
+              ...LISTEN_PLACES.map((p) => ({ id: p, label: t(`place.${p}`) })),
+            ]}
+            value={place}
+            onChange={setPlace}
+          />
+          <ul className="cards">
+            {listening
+              .filter((l) => place === 'all' || l.where === place)
+              .map((l) => (
+                <li key={l.id} className="card listen">
+                  <div className="meaning-top">👂 {pick(l)}</div>
+                  <div className="row">
+                    <Ja className="ja-line">{l.ja}</Ja>
+                    <div className="actions">
+                      <SpeakButtons text={l.ja} slowButton={false} />
+                    </div>
+                  </div>
+                  <div className="romaji" dir="ltr">{l.romaji}</div>
+                  <div className="reply">
+                    <div className="reply-title">
+                      💬 {t('phrases.reply')}: <span className="muted">{lang === 'he' ? l.reply_he : l.reply_en}</span>
+                    </div>
+                    {l.replies?.map((r) => (
+                      <div key={r.ja} className="reply-option">
+                        <div className="reply-text">
+                          <span className="reply-meaning">{pick(r)}</span>
+                          <Ja className="reply-ja">{r.ja}</Ja>
+                          <span className="reply-pron">
+                            {lang === 'he' && <span>{r.he_pron}</span>}
+                            <span className="romaji" dir="ltr">{r.romaji}</span>
+                          </span>
+                        </div>
+                        <div className="actions">
+                          <SpeakButtons text={r.ja} />
+                          <button
+                            className="icon"
+                            aria-label={t('phrases.show')}
+                            onClick={() => setCard({ ja: r.ja, kana: r.kana, romaji: r.romaji, meaning: pick(r) })}
+                          >
+                            <Icon name="card" size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </li>
+              ))}
+          </ul>
+        </>
       ) : list.length === 0 ? (
         <p className="empty">{filter === 'favorites' && !query ? t('phrases.noFavorites') : t('phrases.noResults')}</p>
       ) : (

@@ -21,7 +21,7 @@ export type Category = (typeof CATEGORIES)[number]
 export const SIGN_PLACES = ['station', 'street', 'shop', 'konbini', 'restaurant', 'menu', 'toilet', 'onsen', 'hotel'] as const
 export type SignPlace = (typeof SIGN_PLACES)[number]
 
-export const LISTEN_PLACES = ['shop', 'konbini', 'restaurant', 'station', 'street'] as const
+export const LISTEN_PLACES = ['konbini', 'restaurant', 'shop', 'station', 'street', 'hotel'] as const
 export type ListenPlace = (typeof LISTEN_PLACES)[number]
 
 export interface Phrase {
@@ -44,8 +44,20 @@ export interface ListenCard {
   romaji: string
   he: string
   en: string
+  /** A short hint about how to answer. */
   reply_he: string
   reply_en: string
+  /** What you can say back: ready to hear, read and show. */
+  replies?: Reply[]
+}
+
+export interface Reply {
+  ja: string
+  kana: string
+  romaji: string
+  he_pron: string
+  he: string
+  en: string
 }
 
 export interface Sign {
