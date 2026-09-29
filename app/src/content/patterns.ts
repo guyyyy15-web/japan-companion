@@ -33,6 +33,8 @@ export type WordType =
   | 'machine'
   | 'craft'
   | 'borrowable'
+  /** Where something is relative to you (on the right, upstairs…), for "Is it …?". */
+  | 'direction'
   | 'custom'
 
 export type PatternGroup = 'around' | 'order' | 'shopping' | 'requests' | 'problems'
@@ -96,6 +98,13 @@ export const PATTERNS: Pattern[] = [
     label: { he: 'איפה …?', en: 'Where is …?' },
     ja: '{N}はどこですか', kana: '{N}はどこですか', romaji: '{N} wa doko desu ka', he_pron: '{N} וה דוקו דס קה',
     he: 'איפה {he_def}?', en: 'Where is {the}?',
+  },
+  {
+    id: 'is-it-direction', group: 'around', accepts: ['direction'],
+    keywords: 'direction side floor up down upstairs downstairs right left where כיוון צד קומה למעלה למטה ימין שמאל מימין משמאל',
+    label: { he: 'זה …?', en: 'Is it …?' },
+    ja: '{N}にありますか', kana: '{N}にありますか', romaji: '{N} ni arimasu ka', he_pron: '{N} ני ארימאס קה',
+    he: 'זה {he}?', en: 'Is it {en}?',
   },
   {
     id: 'nearby', group: 'around', accepts: ['place'],

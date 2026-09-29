@@ -426,5 +426,12 @@
   {"id": "may-try", "types": ["may-i"], "ja": "試して", "kana": "ためして", "romaji": "tameshite", "he_pron": "טאמשיטה", "en": "try it", "he": "לנסות את זה", "he_def": "לנסות את זה"},
   {"id": "may-open-box", "types": ["may-i"], "ja": "箱の中を見て", "kana": "はこのなかをみて", "romaji": "hako no naka o mite", "he_pron": "האקו נו נאקה או מיטה", "en": "look inside the box", "he": "להסתכל בתוך הקופסה", "he_def": "להסתכל בתוך הקופסה"},
   {"id": "may-play", "types": ["may-i"], "ja": "このゲームで遊んで", "kana": "このゲームであそんで", "romaji": "kono geemu de asonde", "he_pron": "קונו גמו דה אסונדה", "en": "play this game", "he": "לשחק במשחק הזה", "he_def": "לשחק במשחק הזה"},
-  {"id": "may-test-cosmetic", "types": ["may-i"], "ja": "手に塗って", "kana": "てにぬって", "romaji": "te ni nutte", "he_pron": "טה ני נוטה", "en": "try it on my hand", "he": "למרוח על היד", "he_def": "למרוח על היד"}
+  {"id": "may-test-cosmetic", "types": ["may-i"], "ja": "手に塗って", "kana": "てにぬって", "romaji": "te ni nutte", "he_pron": "טה ני נוטה", "en": "try it on my hand", "he": "למרוח על היד", "he_def": "למרוח על היד"},
+  {"id": "on-right", "types": ["direction"], "ja": "右", "kana": "みぎ", "romaji": "migi", "he_pron": "מיגי", "en": "on the right", "he": "מימין", "he_def": "מימין"},
+  {"id": "on-left", "types": ["direction"], "ja": "左", "kana": "ひだり", "romaji": "hidari", "he_pron": "הידארי", "en": "on the left", "he": "משמאל", "he_def": "משמאל"},
+  {"id": "upstairs", "types": ["direction"], "ja": "上の階", "kana": "うえのかい", "romaji": "ue no kai", "he_pron": "אואה נו קאי", "en": "upstairs", "he": "בקומה למעלה", "he_def": "בקומה למעלה"},
+  {"id": "downstairs", "types": ["direction"], "ja": "下の階", "kana": "したのかい", "romaji": "shita no kai", "he_pron": "שיטה נו קאי", "en": "downstairs", "he": "בקומה למטה", "he_def": "בקומה למטה"},
+  {"id": "across", "types": ["direction"], "ja": "向かい側", "kana": "むかいがわ", "romaji": "mukaigawa", "he_pron": "מוקאיגאווה", "en": "across the street", "he": "בצד השני של הרחוב", "he_def": "בצד השני של הרחוב"},
+  {"id": "next-door", "types": ["direction"], "ja": "隣", "kana": "となり", "romaji": "tonari", "he_pron": "טונארי", "en": "next door", "he": "בבניין הסמוך", "he_def": "בבניין הסמוך"},
+  {"id": "further-ahead", "types": ["direction"], "ja": "この先", "kana": "このさき", "romaji": "kono saki", "he_pron": "קונו סאקי", "en": "further ahead", "he": "עוד קדימה", "he_def": "עוד קדימה"}
 ]

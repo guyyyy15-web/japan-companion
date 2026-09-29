@@ -53,6 +53,7 @@ const HEADING: Record<Exclude<WordType, 'custom'>, Key> = {
   machine: 'type.machine',
   craft: 'type.craft',
   borrowable: 'type.borrowable',
+  direction: 'type.direction',
 }
 
 /** The builder is a four-step wizard on one screen: situation → sentence → word → result. */
