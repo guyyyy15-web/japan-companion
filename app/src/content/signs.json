@@ -105,5 +105,11 @@
   {"id": "one-each", "kanji": "お一人様1点限り", "reading": "おひとりさまいってんかぎり", "romaji": "ohitori-sama itten kagiri", "he": "מוגבל לאחד לאדם", "en": "Limit one per person", "where": "konbini"},
   {"id": "microwave", "kanji": "レンジ", "reading": "れんじ", "romaji": "renji", "he": "מיקרוגל (אפשר לבקש לחמם)", "en": "Microwave (ask them to heat it)", "where": "konbini"},
   {"id": "no-tattoo", "kanji": "刺青・タトゥーお断り", "reading": "いれずみ・たとぅーおことわり", "romaji": "irezumi tatū okotowari", "he": "אין כניסה עם קעקועים", "en": "No tattoos allowed", "where": "onsen"},
-  {"id": "tattoo-ok", "kanji": "タトゥーOK", "reading": "たとぅーおーけー", "romaji": "tatū ōkē", "he": "קעקועים מותרים", "en": "Tattoos allowed", "where": "onsen"}
+  {"id": "tattoo-ok", "kanji": "タトゥーOK", "reading": "たとぅーおーけー", "romaji": "tatū ōkē", "he": "קעקועים מותרים", "en": "Tattoos allowed", "where": "onsen"},
+  {"id": "nobori", "kanji": "上り", "reading": "のぼり", "romaji": "nobori", "he": "למעלה / כיוון העיר (רכבת, מדרגות נעות)", "en": "Up / inbound (trains, escalators)", "where": "station"},
+  {"id": "kudari", "kanji": "下り", "reading": "くだり", "romaji": "kudari", "he": "למטה / יוצא מהעיר (רכבת, מדרגות נעות)", "en": "Down / outbound (trains, escalators)", "where": "station"},
+  {"id": "stairs", "kanji": "階段", "reading": "かいだん", "romaji": "kaidan", "he": "מדרגות", "en": "Stairs", "where": "station"},
+  {"id": "underground", "kanji": "地下", "reading": "ちか", "romaji": "chika", "he": "מתחת לאדמה / קומת מרתף (B1)", "en": "Underground / basement (B1)", "where": "street"},
+  {"id": "floor", "kanji": "階", "reading": "かい", "romaji": "kai", "he": "קומה (2階 = קומה 2, קומה 1 אצלנו)", "en": "Floor (2階 = 2nd floor; ground floor is 1階)", "where": "street"},
+  {"id": "this-way-sign", "kanji": "こちら", "reading": "こちら", "romaji": "kochira", "he": "לכאן / מכאן", "en": "This way", "where": "street"}
 ]

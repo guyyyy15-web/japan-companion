@@ -9,6 +9,7 @@ export const CATEGORIES = [
   'hobbies',
   'beauty',
   'transport',
+  'directions',
   'hotel',
   'sightseeing',
   'health',

@@ -63,9 +63,9 @@ await page.waitForSelector('.tabbar')
 // What's new: shown once, each line jumps to its tab.
 check(await page.isVisible('.whatsnew'), "what's new card shows after an update")
 await page.screenshot({ path: `${OUT}he-whatsnew.png` })
-// The first line of the current release notes points at the Builder tab.
+// The first line of the current release notes points at the Phrases tab.
 await page.click('.whatsnew-item >> nth=0')
-check(await page.isVisible('.mode-switch'), "what's new: the first line opens its tab (Builder)")
+check(await page.isVisible('.phrase-main') || await page.isVisible('.empty'), "what's new: the first line opens its tab (Phrases)")
 await page.reload()
 await page.waitForSelector('.tabbar')
 check(!(await page.isVisible('.whatsnew')), "what's new: not shown again")
@@ -189,6 +189,16 @@ const tools = await page.$$eval('.translate-tool .app-link', (els) => els.map((e
 check(tools.includes('googleapp://lens') && tools.includes('googletranslate://'), `translate: ${tools.length} Google tools (camera, conversation, Lens, handwriting)`)
 await page.screenshot({ path: `${OUT}he-translate.png`, fullPage: true })
 await page.click('.mode-switch .seg-btn:has-text("בניית משפט")')
+
+// Directions: searching "ימינה" finds the direction phrases.
+await page.click('.tab:has-text("ביטויים")')
+await page.fill('.view > .search', 'ימינה')
+const dirHits = await page.$$eval('.phrase-main .ja-line', (els) => els.map((e) => e.textContent))
+check(dirHits.includes('右') && dirHits.includes('右に曲がってください'), `directions: search "ימינה" → ${dirHits.join(' · ')}`)
+await page.fill('.view > .search', '')
+await page.click('.chip:has-text("כיוונים")')
+check((await page.$$eval('.phrase-main', (els) => els.length)) >= 20, 'directions: its own category chip')
+await page.screenshot({ path: `${OUT}he-directions.png` })
 
 // Show-card.
 await page.click('.tab:has-text("ביטויים")')

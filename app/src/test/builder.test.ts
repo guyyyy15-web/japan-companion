@@ -9,7 +9,7 @@ const TYPES: WordType[] = [
   'place', 'pointer-place', 'this', 'thing', 'food', 'drink', 'ingredient', 'body', 'belonging', 'usable',
   'sight', 'fixture', 'rentable', 'amenity', 'vehicle', 'request', 'may-i', 'works',
   'city', 'allergen', 'event', 'person', 'game', 'electronic', 'fashion', 'cosmetic', 'size', 'adjective',
-  'machine', 'craft', 'borrowable', 'custom',
+  'machine', 'craft', 'borrowable', 'direction', 'custom',
 ]
 const HEADING_OF = (t: WordType) => (t === 'pointer-place' || t === 'this' ? 'type.pointer' : t === 'works' ? 'type.usable' : `type.${t}`)
 const byId = (id: string) => VOCAB.find((w) => w.id === id)!
