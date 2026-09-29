@@ -52,36 +52,25 @@ export function TranslateTool() {
   }
 
   return (
-    <div className="translate-tool">
-      <section className="panel translate-box">
-        <div className="seg three" role="radiogroup" aria-label={t('translate.direction')}>
-          {(Object.keys(DIRECTIONS) as Direction[]).map((d) => (
-            <button key={d} role="radio" aria-checked={d === dir} className={d === dir ? 'seg-btn active' : 'seg-btn'} onClick={() => pickDir(d)}>
-              {t(DIRECTIONS[d].label)}
-            </button>
-          ))}
-        </div>
-        <textarea
-          className="search translate-input"
-          rows={3}
-          dir="auto"
-          lang={from === 'ja' ? 'ja' : from === 'iw' ? 'he' : 'en'}
-          value={text}
-          placeholder={t(from === 'ja' ? 'translate.placeholderJa' : from === 'iw' ? 'translate.placeholderHe' : 'translate.placeholderEn')}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <div className="translate-actions">
-          {'clipboard' in navigator && (
-            <button className="link" onClick={paste}>
-              📋 {t('translate.paste')}
-            </button>
-          )}
-          {typed && (
-            <button className="link" onClick={() => setText('')}>
-              ✕ {t('money.clear')}
-            </button>
-          )}
-        </div>
+    <section className="panel translate-tool" aria-label={t('builder.modeTranslate')}>
+      <h3 className="translate-title">🌐 {t('builder.modeTranslate')}</h3>
+      <div className="seg three compact" role="radiogroup" aria-label={t('translate.direction')}>
+        {(Object.keys(DIRECTIONS) as Direction[]).map((d) => (
+          <button key={d} role="radio" aria-checked={d === dir} className={d === dir ? 'seg-btn active' : 'seg-btn'} onClick={() => pickDir(d)}>
+            {t(DIRECTIONS[d].label)}
+          </button>
+        ))}
+      </div>
+      <textarea
+        className="search translate-input"
+        rows={2}
+        dir="auto"
+        lang={from === 'ja' ? 'ja' : from === 'iw' ? 'he' : 'en'}
+        value={text}
+        placeholder={t(from === 'ja' ? 'translate.placeholderJa' : from === 'iw' ? 'translate.placeholderHe' : 'translate.placeholderEn')}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <div className="translate-row">
         <a
           className={typed ? 'primary-btn translate-go' : 'primary-btn translate-go disabled'}
           href={typed ? translateAppUrl(typed, from, to) : undefined}
@@ -93,28 +82,41 @@ export function TranslateTool() {
         >
           🌐 {t('translate.go')}
         </a>
-        {typed && (
-          <a className="link translate-web" href={translateWebUrl(typed, from, to)} target="_blank" rel="noopener noreferrer">
-            🧭 {t('translate.inBrowser')}
-          </a>
+        {'clipboard' in navigator && !typed && (
+          <button className="link" onClick={paste}>
+            📋 {t('translate.paste')}
+          </button>
         )}
-        <p className="muted small-start">{t('translate.note')}</p>
-      </section>
+        {typed && (
+          <button className="link" onClick={() => setText('')}>
+            ✕ {t('money.clear')}
+          </button>
+        )}
+      </div>
+      {typed && (
+        <a className="link translate-web" href={translateWebUrl(typed, from, to)} target="_blank" rel="noopener noreferrer">
+          🧭 {t('translate.inBrowser')}
+        </a>
+      )}
 
-      <section className="panel">
-        <h3>{t('translate.tools')}</h3>
-        <ul className="apps">
+      <div className="tool-chips" aria-label={t('translate.tools')}>
+        {TOOLS.map((tool) => (
+          <a key={tool.title} className="tool-chip" href={tool.href} title={t(tool.how)}>
+            <span aria-hidden>{tool.icon}</span> {t(tool.title)}
+          </a>
+        ))}
+      </div>
+
+      <details className="translate-more">
+        <summary>{t('translate.setupTitle')}</summary>
+        <ul className="tips">
           {TOOLS.map((tool) => (
             <li key={tool.title}>
-              <a className="app-link" href={tool.href}>
-                <span className="app-icon" aria-hidden>{tool.icon}</span>
-                <span className="app-text">
-                  <span className="app-name">{t(tool.title)}</span>
-                  <span className="muted app-what">{t(tool.how)}</span>
-                </span>
-                <span aria-hidden className="app-go">↗</span>
-              </a>
+              {tool.icon} {t(tool.how)}
             </li>
+          ))}
+          {SETUP.map((k) => (
+            <li key={k}>{t(k)}</li>
           ))}
         </ul>
         <p className="muted small-start">
@@ -125,18 +127,7 @@ export function TranslateTool() {
           {' · '}
           <a href={LENS_WEB} target="_blank" rel="noopener noreferrer">Lens web</a>
         </p>
-      </section>
-
-      <details className="panel guide">
-        <summary>
-          <span aria-hidden>✅</span> {t('translate.setupTitle')}
-        </summary>
-        <ol className="tips">
-          {SETUP.map((k) => (
-            <li key={k}>{t(k)}</li>
-          ))}
-        </ol>
       </details>
-    </div>
+    </section>
   )
 }

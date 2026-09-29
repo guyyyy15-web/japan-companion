@@ -7,6 +7,7 @@ import { BuilderView } from './features/builder/BuilderView'
 import { NearbyView } from './features/nearby/NearbyView'
 import { SignsView } from './features/signs/SignsView'
 import { MoneyView } from './features/money/MoneyView'
+import { GalleryView } from './features/gallery/GalleryView'
 import { GuideView } from './features/guide/GuideView'
 import { useI18n } from './i18n'
 import { load, save } from './lib/storage'
@@ -43,6 +44,7 @@ export function App() {
         {tab === 'nearby' && <NearbyView />}
         {tab === 'signs' && <SignsView />}
         {tab === 'money' && <MoneyView />}
+        {tab === 'gallery' && <GalleryView />}
         {tab === 'guide' && <GuideView />}
       </main>
       <TabBar tab={tab} onChange={setTab} />

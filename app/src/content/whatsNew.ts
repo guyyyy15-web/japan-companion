@@ -3,10 +3,10 @@ import type { Bi } from './guide'
 
 /** Shown once after an update. Bump `version` and replace the items when shipping something worth pointing at. */
 export const WHATS_NEW: { version: string; items: (Bi & { icon: string; tab: Tab })[] } = {
-  version: '0.14',
+  version: '0.15',
   items: [
-    { icon: '👂', tab: 'phrases', he: '"מה אומרים לכם": 46 מצבים, ולכל אחד תשובות מוכנות עם השמעה וכרטיס להצגה', en: '"They say": 46 situations, each with ready answers you can hear and show' },
-    { icon: '🏨', tab: 'phrases', he: 'חדש: מלון, מסעדה, קונביני, חנות ורכבת, עם סינון לפי מקום', en: 'New: hotel, restaurant, konbini, shop and train, filtered by place' },
-    { icon: '🌐', tab: 'builder', he: 'גוגל טרנסלייט נפתח קודם באפליקציה (מהיר יותר), והדפדפן רק כגיבוי', en: 'Google Translate opens in the app first (faster); the browser is the fallback' },
+    { icon: '🖼️', tab: 'gallery', he: 'גלריה: כרטיסים, QR, הזמנות, מסמכים ומפות, לפי קטגוריות וגם בלי אינטרנט', en: 'Gallery: tickets, QR codes, bookings, documents and maps, by category and offline' },
+    { icon: '🧾', tab: 'money', he: 'ארנק: מצמידים צילום קבלה לכל הוצאה', en: 'Wallet: attach a receipt photo to any expense' },
+    { icon: '🧩', tab: 'builder', he: 'משפטים ותרגום חופשי במסך אחד, והכלים של גוגל בכפתורים קטנים', en: 'Sentences and free translation on one screen, with compact Google tool buttons' },
   ],
 }

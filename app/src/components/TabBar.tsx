@@ -2,7 +2,7 @@ import { useI18n } from '../i18n'
 import { Icon, type IconName } from './Icon'
 import type { Key } from '../i18n/en'
 
-export type Tab = 'phrases' | 'builder' | 'nearby' | 'signs' | 'money' | 'guide'
+export type Tab = 'phrases' | 'builder' | 'nearby' | 'signs' | 'money' | 'gallery' | 'guide'
 
 const TABS: { id: Tab; icon: IconName; key: Key }[] = [
   { id: 'phrases', icon: 'phrases', key: 'tab.phrases' },
@@ -10,6 +10,7 @@ const TABS: { id: Tab; icon: IconName; key: Key }[] = [
   { id: 'nearby', icon: 'nearby', key: 'tab.nearby' },
   { id: 'signs', icon: 'signs', key: 'tab.signs' },
   { id: 'money', icon: 'money', key: 'tab.money' },
+  { id: 'gallery', icon: 'gallery', key: 'tab.gallery' },
   { id: 'guide', icon: 'guide', key: 'tab.guide' },
 ]
 

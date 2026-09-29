@@ -113,7 +113,7 @@ main {
   inset-block-end: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   padding-block-end: env(safe-area-inset-bottom);
   background: color-mix(in srgb, var(--card) 92%, transparent);
   backdrop-filter: blur(12px) saturate(1.2);
@@ -129,13 +129,13 @@ main {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   line-height: 1.15;
   text-align: center;
-  padding-inline: 2px;
+  padding-inline: 1px;
   color: var(--ink-2);
 }
-.tab-icon { display: grid; place-items: center; height: 26px; width: 44px; border-radius: 999px; transition: background 0.2s; }
+.tab-icon { display: grid; place-items: center; height: 26px; width: 40px; border-radius: 999px; transition: background 0.2s; }
 .tab.active { color: var(--shu); font-weight: 600; }
 .tab.active .tab-icon { background: var(--shu-soft); }
 
@@ -833,3 +833,55 @@ a.primary-btn { display: flex; align-items: center; justify-content: center; gap
 .reply-ja { font-size: 1.15rem; font-weight: 700; color: var(--ink); }
 .reply-pron { display: flex; flex-wrap: wrap; gap: 0 8px; font-size: 0.78rem; color: var(--ink-2); }
 .reply-option .actions { flex: none; }
+
+/* Photos: gallery, receipts, full-screen viewer */
+.gallery { gap: 10px; }
+.chip-count { margin-inline-start: 5px; font-size: 0.7rem; opacity: 0.7; }
+.photo-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.photo-cell { margin: 0; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.photo-cell figcaption { font-size: 0.68rem; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.photo-thumb { padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--paper); aspect-ratio: 1; inline-size: 100%; display: block; }
+.photo-thumb img { inline-size: 100%; block-size: 100%; object-fit: cover; display: block; }
+.photo-thumb.small { inline-size: 34px; block-size: 34px; flex: none; border-radius: 8px; }
+.wallet-attach { flex: none; inline-size: 34px; block-size: 34px; font-size: 1rem; }
+.wallet-photo-row { display: flex; align-items: center; gap: 10px; }
+.wallet-pending { inline-size: 56px; block-size: 56px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+.photo-viewer { position: fixed; inset: 0; z-index: 30; background: #111; display: flex; flex-direction: column; padding-block-start: env(safe-area-inset-top); }
+.photo-stage { flex: 1; min-block-size: 0; overflow: auto; display: grid; place-items: center; }
+.photo-stage img { max-inline-size: 100%; max-block-size: 100%; object-fit: contain; }
+.photo-stage.zoomed { place-items: start; }
+.photo-stage.zoomed img { max-inline-size: none; max-block-size: none; inline-size: 220%; }
+.photo-bar { display: flex; flex-direction: column; gap: 8px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: #1c1c1c; color: #fff; }
+.photo-caption { font-size: 0.9rem; }
+.photo-category { padding: 7px 10px; border-radius: 10px; border: 1px solid #444; background: #2a2a2a; color: #fff; }
+.photo-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.photo-actions button { padding: 8px 12px; border-radius: 10px; border: 1px solid #444; background: #2a2a2a; color: #fff; }
+.photo-actions .primary { background: #fff; color: #111; }
+
+/* Free translation, compact, under the builder */
+.translate-tool { display: flex; flex-direction: column; gap: 8px; }
+.translate-title { margin: 0; font-size: 0.95rem; }
+.seg.compact .seg-btn { padding: 6px 4px; font-size: 0.82rem; }
+.translate-tool .translate-input { min-block-size: 64px; font-size: 1rem; }
+.translate-row { display: flex; align-items: center; gap: 12px; }
+.translate-row .translate-go { flex: 1; padding-block: 10px; font-size: 0.92rem; }
+.translate-web { font-size: 0.82rem; align-self: flex-start; }
+.tool-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+.tool-chip:active { background: var(--ai-soft); }
+.translate-more summary { font-size: 0.82rem; color: var(--ai); cursor: pointer; }
+.translate-more .tips { margin-block-start: 6px; font-size: 0.82rem; }
+.translate-more a { color: var(--ai); font-weight: 600; }
+.suggest-google .suggest-gloss { color: var(--ai); }
+a.suggest-item { display: block; text-decoration: none; color: inherit; }
