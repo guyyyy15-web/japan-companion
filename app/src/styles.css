@@ -734,3 +734,91 @@ button.quick { font: inherit; text-align: start; cursor: pointer; }
 .place-name .ja { overflow-wrap: anywhere; }
 .place-en { font-size: 0.78rem; font-weight: 400; color: var(--ink-2); overflow-wrap: anywhere; }
 .nearby-text { display: flex; flex-direction: column; }
+
+/* Builder wizard: one screen, one step at a time */
+.mode-switch { margin-block-end: 2px; }
+.wizard { display: flex; flex-direction: column; gap: 10px; }
+.crumbs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 5px 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink-2);
+  font-size: 0.72rem;
+  text-align: start;
+}
+.crumb:disabled { opacity: 0.45; }
+.crumb.active { border-color: var(--shu); background: var(--shu-soft); color: var(--ink); font-weight: 600; }
+.crumb-n { flex: none; inline-size: 18px; block-size: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--ai-soft); color: var(--ai); font-weight: 700; font-size: 0.7rem; }
+.crumb.active .crumb-n { background: var(--shu); color: #fff; }
+.crumb-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wizard-step { display: flex; flex-direction: column; gap: 10px; animation: step-in 0.18s ease-out; }
+@keyframes step-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .wizard-step { animation: none; } }
+.situations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.situation {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 14px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  text-align: start;
+  color: var(--ink);
+}
+.situation:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.situation.active { border-color: var(--ai); }
+.situation-icon { font-size: 1.6rem; line-height: 1.2; }
+.situation-name { font-weight: 700; font-size: 1rem; }
+.situation-count { font-size: 0.75rem; }
+.wizard-scroll {
+  max-block-size: calc(100dvh - 330px);
+  min-block-size: 200px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-inline-end: 2px;
+}
+.wizard-back { align-self: flex-start; }
+.builder-result.big {
+  position: static;
+  max-height: none;
+  overflow: visible;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 16px 14px;
+  text-align: center;
+}
+.builder-result.big .result-gloss { font-size: 1rem; }
+.builder-result.big .result-ja { font-size: 1.9rem; }
+.builder-result.big .result-pron { justify-content: center; font-size: 0.9rem; }
+.builder-result.big .result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-block-start: 6px; }
+.builder-result.big .stepper { flex-basis: 100%; justify-content: center; gap: 16px; }
+.result-google { display: grid; place-items: center; text-decoration: none; }
+.swaps { display: flex; align-items: center; gap: 8px; }
+.swaps .chips { margin-inline: 0 -16px; padding-inline: 0 16px; }
+.result-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.result-nav .frame { font-size: 0.85rem; }
+
+/* Translate tool */
+.translate-tool { display: flex; flex-direction: column; gap: 12px; }
+.translate-box { display: flex; flex-direction: column; gap: 8px; }
+.seg.three { grid-template-columns: repeat(3, 1fr); }
+.translate-input { resize: vertical; font-family: inherit; font-size: 1.05rem; min-block-size: 90px; }
+.translate-actions { display: flex; gap: 16px; }
+a.primary-btn { display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; text-decoration: none; }
+.primary-btn.disabled { opacity: 0.45; pointer-events: none; }
+.translate-app { align-self: center; }
+.translate-tool p a { color: var(--ai); font-weight: 600; }
+.chip.swap { display: inline-flex; align-items: baseline; gap: 5px; }

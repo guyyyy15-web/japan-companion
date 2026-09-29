@@ -3,10 +3,10 @@ import type { Bi } from './guide'
 
 /** Shown once after an update. Bump `version` and replace the items when shipping something worth pointing at. */
 export const WHATS_NEW: { version: string; items: (Bi & { icon: string; tab: Tab })[] } = {
-  version: '0.11',
+  version: '0.12',
   items: [
-    { icon: '📍', tab: 'nearby', he: 'בסביבה: 60 סוגי מקומות עם רשימת הקרובים ומפה, עם שמות, ישר באפליקציה', en: 'Nearby: the nearest places for 60 searches, named, with a map, right in the app' },
-    { icon: '🛒', tab: 'nearby', he: 'חדש: סופר, מידע לתיירים, מוניות, בתי קפה, מאפיות, פארקים, מוזיאונים, אופניים', en: 'New: supermarkets, tourist info, taxis, cafés, bakeries, parks, museums, bike share' },
-    { icon: '⬇️', tab: 'nearby', he: 'אפשר לשמור את כל המקומות לשימוש בלי אינטרנט (כ-7MB)', en: 'Save all places for offline use (about 7 MB)' },
+    { icon: '🧩', tab: 'builder', he: 'בניית משפטים מחדש: שלב אחרי שלב במסך אחד, בלי גלילה ארוכה', en: 'Sentence builder redone: one step at a time on one screen, no long scrolling' },
+    { icon: '🌐', tab: 'builder', he: 'תרגום חופשי: כותבים או מדביקים ושולחים לגוגל טרנסלייט', en: 'Free translation: type or paste, then open it in Google Translate' },
+    { icon: '📷', tab: 'builder', he: 'קיצורים למצלמה ולשיחה של גוגל טרנסלייט ולגוגל לנז, והכנות לפני הטיסה', en: 'Shortcuts to Google Translate camera and conversation, Google Lens, and a pre-flight checklist' },
   ],
 }
