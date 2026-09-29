@@ -63,9 +63,9 @@ await page.waitForSelector('.tabbar')
 // What's new: shown once, each line jumps to its tab.
 check(await page.isVisible('.whatsnew'), "what's new card shows after an update")
 await page.screenshot({ path: `${OUT}he-whatsnew.png` })
-// The first line of the current release notes points at the Nearby tab.
+// The first line of the current release notes points at the Builder tab.
 await page.click('.whatsnew-item >> nth=0')
-check(await page.isVisible('.tattoo-toggle'), "what's new: the first line opens its tab (Nearby)")
+check(await page.isVisible('.mode-switch'), "what's new: the first line opens its tab (Builder)")
 await page.reload()
 await page.waitForSelector('.tabbar')
 check(!(await page.isVisible('.whatsnew')), "what's new: not shown again")
@@ -119,20 +119,28 @@ await page.click('.tab:has-text("מדריך")')
 await page.click('#sizes summary')
 check((await page.textContent('.size-big')).includes('24 cm'), 'sizes: EU 38 → 24 cm')
 
-// Builder: group tabs → frame → word, for each group.
+// Builder: a four-step wizard on one screen (situation → sentence → word → result).
 const resultJa = () => page.textContent('.builder-result .result-ja')
-// Picking a frame folds the grid into a bar; "change" opens it again.
 const pickFrame = async (group, frame) => {
-  if (await page.isVisible('.frame-bar')) await page.click('.frame-bar .link')
-  await page.click(`.group-tab:has-text("${group}")`)
+  await page.click('.crumb >> nth=0')
+  await page.click(`.situation:has-text("${group}")`)
   await page.click(`.frame:has-text("${frame}")`)
-  check(await page.isVisible('.frame-bar'), `builder: frame grid folds after picking "${frame}"`)
+  check(await page.isVisible('.wizard-step .words'), `builder: "${frame}" leads straight to the words`)
 }
 await page.click('.tab:has-text("משפטים")')
+if (await page.isVisible('.mode-switch .seg-btn:has-text("בניית משפט"):not(.active)')) await page.click('.mode-switch .seg-btn:has-text("בניית משפט")')
+check((await page.$$eval('.situation', (els) => els.length)) === 5, 'builder: step 1 shows the 5 situations')
+await page.screenshot({ path: `${OUT}he-builder-step1.png` })
 await pickFrame('התמצאות', 'איפה …?')
+await page.screenshot({ path: `${OUT}he-builder-step3.png` })
 await page.click('.word:has-text("שירותים")')
 check((await resultJa()) === 'トイレはどこですか', 'builder: where + toilet')
+check(!(await page.isVisible('.situations')) && !(await page.isVisible('.words')), 'builder: the result replaces the lists (one step at a time)')
+const googleCheck = await page.getAttribute('.result-google', 'href')
+check(googleCheck.startsWith('https://translate.google.com/?sl=ja&tl=iw&text='), 'builder: result links to Google Translate to double-check')
 await page.screenshot({ path: `${OUT}he-builder.png` })
+await page.click('.swaps .chip >> nth=0')
+check((await resultJa()) !== 'トイレはどこですか' && (await resultJa()).endsWith('はどこですか'), `builder: a swap chip changes the word (${await resultJa()})`)
 
 await pickFrame('הזמנות', '× כמות')
 await page.click('.word:has-text("כרטיס") >> nth=0')
@@ -141,6 +149,7 @@ const tickets = await resultJa()
 check(tickets === '切符を二枚お願いします', `builder: tickets × 2 → ${tickets}`)
 await page.screenshot({ path: `${OUT}he-builder-count.png` })
 // Long word groups start folded; "+N more" opens them.
+await page.click('.result-nav .frame:has-text("מילה אחרת")')
 const before = await page.$$eval('.word:not(.more)', (els) => els.length)
 await page.click('.word.more >> nth=0')
 const after = await page.$$eval('.word:not(.more)', (els) => els.length)
@@ -167,6 +176,19 @@ await page.screenshot({ path: `${OUT}he-builder-suggest.png` })
 await page.click('.suggest-item >> nth=0')
 const rented = await resultJa()
 check(rented.startsWith('自転車'), `type-ahead: "לשכור אופניים" → ${rented}`)
+
+// Free translation: hands the text to Google Translate (web and app), plus Google/iPhone tools.
+await page.click('.mode-switch .seg-btn:has-text("תרגום חופשי")')
+await page.fill('.translate-input', 'איפה התחנה?')
+const tr = await page.getAttribute('.translate-go', 'href')
+const trApp = await page.getAttribute('.translate-app', 'href')
+check(tr === 'https://translate.google.com/?sl=iw&tl=ja&text=' + encodeURIComponent('איפה התחנה?') + '&op=translate' && trApp.startsWith('googletranslate://?sl=iw&tl=ja&text='), 'translate: Hebrew → Japanese goes to Google Translate (web + app)')
+await page.click('.translate-tool .seg-btn:has-text("日本 → עב")')
+check((await page.getAttribute('.translate-go', 'href')).includes('sl=ja&tl=iw'), 'translate: direction switch')
+const tools = await page.$$eval('.translate-tool .app-link', (els) => els.map((e) => e.getAttribute('href')))
+check(tools.includes('googleapp://lens') && tools.includes('googletranslate://'), `translate: ${tools.length} Google tools (camera, conversation, Lens, handwriting)`)
+await page.screenshot({ path: `${OUT}he-translate.png`, fullPage: true })
+await page.click('.mode-switch .seg-btn:has-text("בניית משפט")')
 
 // Show-card.
 await page.click('.tab:has-text("ביטויים")')
@@ -295,14 +317,17 @@ for (const tab of ['ביטויים', 'משפטים', 'בסביבה', 'שלטים
   check(sw <= iw, `SE: ${tab} has no sideways scroll (${sw} ≤ ${iw})`)
 }
 await sp.click('.tab:has-text("משפטים")')
-for (const g of ['התמצאות', 'הזמנות', 'בקשות', 'בעיות']) {
-  await sp.click(`.group-tab:has-text("${g}")`)
+for (const g of ['התמצאות', 'הזמנות', 'קניות', 'בקשות', 'בעיות']) {
+  await sp.click('.crumb >> nth=0')
+  await sp.click(`.situation:has-text("${g}")`)
   const off = await sp.$$eval('.frame-grid .frame', (els) =>
     els.filter((e) => { const r = e.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth }).length)
   check(off === 0, `SE: every "${g}" frame is fully visible`)
 }
-await sp.click('.group-tab:has-text("התמצאות")')
+await sp.click('.crumb >> nth=0')
+await sp.click('.situation:has-text("התמצאות")')
 await sp.screenshot({ path: `${OUT}se-builder.png` })
+await sp.click('.frame >> nth=0')
 await sp.click('.word >> nth=0')
 await sp.click('.builder-result button[aria-label="השמעת הגייה"]')
 check(await sp.isVisible('.toast'), 'SE: missing Japanese voice shows a warning instead of a wrong accent')
