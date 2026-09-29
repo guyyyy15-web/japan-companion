@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { MoneyText } from '../../components/MoneyText'
+import { BlobImage, PhotoPicker, PhotoThumb, PhotoViewer } from '../../components/Photos'
+import { addPhoto, deletePhoto, deletePhotosOf, listPhotos, type Photo } from '../../lib/photos'
 import { useI18n } from '../../i18n'
 import { formatMoney } from '../../lib/money'
 import { load, save } from '../../lib/storage'
@@ -31,6 +33,24 @@ export function WalletPanel({ yen, toIls, onAdded }: Props) {
   const [method, setMethod] = useState<Method>(() => load<Method>('jc.walletMethod', 'card'))
   const [note, setNote] = useState('')
   const [copied, setCopied] = useState(false)
+  // Receipt photos, stored in IndexedDB and linked to an expense by its id.
+  const [receipts, setReceipts] = useState<Photo[]>([])
+  const [pending, setPending] = useState<File | null>(null)
+  const [viewing, setViewing] = useState<Photo | null>(null)
+
+  const loadReceipts = useCallback(() => {
+    listPhotos().then((all) => setReceipts(all.filter((p) => p.expenseId)), () => setReceipts([]))
+  }, [])
+  useEffect(loadReceipts, [loadReceipts])
+
+  const attach = async (expenseId: string, file: File, label: string) => {
+    try {
+      await addPhoto(file, 'receipts', { expenseId, note: label })
+      loadReceipts()
+    } catch {
+      window.alert(t('gallery.addFailed'))
+    }
+  }
 
   const store = (next: Expense[]) => {
     setList(next)
@@ -38,13 +58,21 @@ export function WalletPanel({ yen, toIls, onAdded }: Props) {
   }
 
   const add = () => {
-    store([...list, newExpense(yen, cat, method, note)])
+    const expense = newExpense(yen, cat, method, note)
+    store([...list, expense])
     save('jc.walletMethod', method)
+    if (pending) attach(expense.id, pending, expense.note ?? t(`wallet.cat.${expense.cat}`))
+    setPending(null)
     setNote('')
     onAdded()
   }
 
-  const remove = (id: string) => store(list.filter((e) => e.id !== id))
+  const remove = (id: string) => {
+    const hasPhoto = receipts.some((p) => p.expenseId === id)
+    if (hasPhoto && !window.confirm(t('wallet.confirmDeleteWithPhoto'))) return
+    store(list.filter((e) => e.id !== id))
+    if (hasPhoto) deletePhotosOf(id).then(loadReceipts)
+  }
 
   const sum = totals(list)
   const today = sum.byDay.find((d) => d.day === dayOf({ at: new Date().toISOString() }))
@@ -124,6 +152,18 @@ export function WalletPanel({ yen, toIls, onAdded }: Props) {
             onChange={(e) => setNote(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && add()}
           />
+          <div className="wallet-photo-row">
+            {pending ? (
+              <>
+                <BlobImage className="wallet-pending" blob={pending} />
+                <button className="link" onClick={() => setPending(null)}>✕ {t('wallet.removePhoto')}</button>
+              </>
+            ) : (
+              <PhotoPicker className="link" onPick={setPending}>
+                📷 {t('wallet.addPhoto')}
+              </PhotoPicker>
+            )}
+          </div>
           <button className="primary-btn" onClick={add}>
             {t('wallet.addButton')}
           </button>
@@ -191,6 +231,16 @@ export function WalletPanel({ yen, toIls, onAdded }: Props) {
                         </span>
                       </span>
                       <MoneyText amount={e.yen} currency="JPY" />
+                      {(() => {
+                        const photo = receipts.find((p) => p.expenseId === e.id)
+                        return photo ? (
+                          <PhotoThumb photo={photo} small onOpen={() => setViewing(photo)} />
+                        ) : (
+                          <PhotoPicker className="icon wallet-attach" onPick={(f) => attach(e.id, f, e.note ?? t(`wallet.cat.${e.cat}`))}>
+                            <span aria-label={t('wallet.addPhoto')}>📷</span>
+                          </PhotoPicker>
+                        )
+                      })()}
                       <button className="icon wallet-del" aria-label={t('wallet.delete')} onClick={() => remove(e.id)}>
                         ×
                       </button>
@@ -211,6 +261,17 @@ export function WalletPanel({ yen, toIls, onAdded }: Props) {
         )}
         <p className="muted small-start">{t('wallet.note')}</p>
       </section>
+      {viewing && (
+        <PhotoViewer
+          photo={viewing}
+          onClose={() => setViewing(null)}
+          onDelete={async () => {
+            await deletePhoto(viewing.id)
+            setViewing(null)
+            loadReceipts()
+          }}
+        />
+      )}
     </>
   )
 }

@@ -57,15 +57,18 @@ const check = (cond, msg) => {
   console.log(`ok  ${msg}`)
 }
 
+// A small test image for photo uploads (40×30 red PNG).
+const PNG = { name: 'receipt.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAACgAAAAeCAIAAADRv8uKAAAALElEQVR4nO3NMQ0AAAgDsMlBBP6DLGTA0aR/M10nIhaLxWKxWCwWi8Xiv/ECXGd+jLiIbqkAAAAASUVORK5CYII=', 'base64') }
+
 await page.goto(URL_)
 await page.waitForSelector('.tabbar')
 
 // What's new: shown once, each line jumps to its tab.
 check(await page.isVisible('.whatsnew'), "what's new card shows after an update")
 await page.screenshot({ path: `${OUT}he-whatsnew.png` })
-// The first line of the current release notes points at the Phrases tab.
+// The first line of the current release notes points at the Gallery tab.
 await page.click('.whatsnew-item >> nth=0')
-check(await page.isVisible('.phrase-main') || await page.isVisible('.empty'), "what's new: the first line opens its tab (Phrases)")
+check(await page.isVisible('.gallery'), "what's new: the first line opens its tab (Gallery)")
 await page.reload()
 await page.waitForSelector('.tabbar')
 check(!(await page.isVisible('.whatsnew')), "what's new: not shown again")
@@ -76,6 +79,7 @@ const tabs = [
   ['nearby', { he: 'בסביבה', en: 'Nearby' }],
   ['signs', { he: 'שלטים', en: 'Signs' }],
   ['money', { he: 'כסף', en: 'Money' }],
+  ['gallery', { he: 'גלריה', en: 'Gallery' }],
   ['guide', { he: 'מדריך', en: 'Guide' }],
 ]
 
@@ -103,8 +107,12 @@ await page.screenshot({ path: `${OUT}he-money-5000.png`, fullPage: true })
 // Trip wallet: log the ¥5,000 as shopping, paid in cash.
 await page.click('.cat-btn:has-text("קניות")')
 await page.click('.wallet-add .seg-btn:has-text("מזומן")')
-await page.fill('.wallet-add input', 'Tamagotchi')
+await page.fill('.wallet-add input.search', 'Tamagotchi')
+await page.setInputFiles('.wallet-photo-row input[type=file]', PNG)
+await page.waitForSelector('.wallet-pending')
 await page.click('.wallet-add .primary-btn')
+await page.waitForSelector('.wallet-items .photo-thumb img')
+check(true, 'wallet: the expense has its receipt photo')
 const walletTotal = await page.textContent('.wallet-total')
 const walletItems = await page.$$eval('.wallet-items li', (els) => els.map((e) => e.textContent))
 check(walletTotal.includes('5,000') && walletTotal.includes('₪') && walletItems.length === 1 && walletItems[0].includes('Tamagotchi'), `wallet: logged ¥5,000 → ${walletTotal}`)
@@ -113,6 +121,24 @@ await page.screenshot({ path: `${OUT}he-wallet.png`, fullPage: true })
 await page.reload()
 await page.click('.tab:has-text("כסף")')
 check((await page.$$eval('.wallet-items li', (els) => els.length)) === 1, 'wallet: entries survive a reload')
+await page.waitForSelector('.wallet-items .photo-thumb img', { timeout: 5000 })
+check(true, 'wallet: the receipt photo survives a reload (IndexedDB)')
+
+// Gallery: receipts from the wallet, plus photos saved by category.
+await page.click('.tab:has-text("גלריה")')
+await page.click('.gallery .chip:has-text("קבלות")')
+check((await page.$$eval('.photo-cell', (els) => els.length)) === 1 && (await page.textContent('.photo-cell figcaption')).includes('Tamagotchi'), 'gallery: the wallet receipt shows under Receipts, with its expense')
+await page.click('.gallery .chip:has-text("כרטיסים")')
+await page.setInputFiles('.gallery input[type=file]', PNG)
+await page.waitForSelector('.photo-cell')
+await page.click('.gallery .chip:has-text("הכל")')
+check((await page.$$eval('.photo-cell', (els) => els.length)) === 2, 'gallery: a ticket photo saved by category; "all" shows both')
+await page.click('.photo-cell >> nth=0 >> .photo-thumb')
+await page.waitForSelector('.photo-viewer img[src^="blob:"]', { state: 'visible', timeout: 5000 })
+check(true, 'gallery: a photo opens full-screen')
+await page.screenshot({ path: `${OUT}he-photo-viewer.png` })
+await page.click('.photo-actions .primary')
+await page.screenshot({ path: `${OUT}he-gallery.png`, fullPage: true })
 
 // Sizes in the guide.
 await page.click('.tab:has-text("מדריך")')
@@ -128,7 +154,6 @@ const pickFrame = async (group, frame) => {
   check(await page.isVisible('.wizard-step .words'), `builder: "${frame}" leads straight to the words`)
 }
 await page.click('.tab:has-text("משפטים")')
-if (await page.isVisible('.mode-switch .seg-btn:has-text("בניית משפט"):not(.active)')) await page.click('.mode-switch .seg-btn:has-text("בניית משפט")')
 check((await page.$$eval('.situation', (els) => els.length)) === 5, 'builder: step 1 shows the 5 situations')
 await page.screenshot({ path: `${OUT}he-builder-step1.png` })
 await pickFrame('התמצאות', 'איפה …?')
@@ -179,17 +204,20 @@ const rented = await resultJa()
 check(rented.startsWith('自転車'), `type-ahead: "לשכור אופניים" → ${rented}`)
 
 // Free translation: hands the text to Google Translate (web and app), plus Google/iPhone tools.
-await page.click('.mode-switch .seg-btn:has-text("תרגום חופשי")')
+check(await page.isVisible('.translate-tool') && await page.isVisible('.wizard'), 'builder: free translation sits on the same screen as the builder')
 await page.fill('.translate-input', 'איפה התחנה?')
 const tr = await page.getAttribute('.translate-go', 'href')
 const trWeb = await page.getAttribute('.translate-web', 'href')
 check(tr === 'googletranslate://?sl=iw&tl=ja&text=' + encodeURIComponent('איפה התחנה?') && trWeb.startsWith('https://translate.google.com/?sl=iw&tl=ja&text='), 'translate: the main button opens the Google Translate app; the browser is the second option')
 await page.click('.translate-tool .seg-btn:has-text("日本 → עב")')
 check((await page.getAttribute('.translate-go', 'href')).includes('sl=ja&tl=iw'), 'translate: direction switch')
-const tools = await page.$$eval('.translate-tool .app-link', (els) => els.map((e) => e.getAttribute('href')))
+const tools = await page.$$eval('.translate-tool .tool-chip', (els) => els.map((e) => e.getAttribute('href')))
 check(tools.includes('googleapp://lens') && tools.includes('googletranslate://'), `translate: ${tools.length} Google tools (camera, conversation, Lens, handwriting)`)
 await page.screenshot({ path: `${OUT}he-translate.png`, fullPage: true })
-await page.click('.mode-switch .seg-btn:has-text("בניית משפט")')
+await page.fill('.smart .search', 'עוד בירה אחת')
+const typedGoogle = await page.getAttribute('.suggest-google', 'href')
+check(typedGoogle.startsWith('googletranslate://?sl=iw&tl=ja&text='), 'builder: any typed text can go straight to Google Translate')
+await page.fill('.smart .search', '')
 
 // They say: filter by place; each reply can be heard and shown.
 await page.click('.tab:has-text("ביטויים")')
@@ -337,7 +365,7 @@ await se.addInitScript(FAKE_SPEECH, [{ name: 'Samantha', lang: 'en-US' }])
 const sp = await se.newPage()
 await sp.goto(URL_)
 await sp.waitForSelector('.tabbar')
-for (const tab of ['ביטויים', 'משפטים', 'בסביבה', 'שלטים', 'כסף', 'מדריך']) {
+for (const tab of ['ביטויים', 'משפטים', 'בסביבה', 'שלטים', 'כסף', 'גלריה', 'מדריך']) {
   await sp.click(`.tab:has-text("${tab}")`)
   await sp.waitForTimeout(100)
   const { sw, iw } = await sp.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth }))

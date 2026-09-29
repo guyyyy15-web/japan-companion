@@ -7,7 +7,7 @@ import { SpeakButtons } from '../../components/SpeakButtons'
 import { useI18n } from '../../i18n'
 import type { Key } from '../../i18n/en'
 import { build, customWord, fits, MAX_COUNT, VOCAB, wordsFor, type Word } from '../../lib/builder'
-import { openAppOrWeb, translateAppUrl, translateWebUrl } from '../../lib/googleApps'
+import { openAppOrWeb, translateAppUrl, translateWebUrl, type TranslateLang } from '../../lib/googleApps'
 import { matches } from '../../lib/search'
 import { load, save } from '../../lib/storage'
 import { suggest } from '../../lib/suggest'
@@ -59,7 +59,6 @@ const HEADING: Record<Exclude<WordType, 'custom'>, Key> = {
 /** The builder is a four-step wizard on one screen: situation → sentence → word → result. */
 type Step = 'situation' | 'frame' | 'word' | 'result'
 const STEPS: Step[] = ['situation', 'frame', 'word', 'result']
-type Mode = 'build' | 'translate'
 
 interface Recent {
   p: string
@@ -80,7 +79,6 @@ function resolveWord(ref: string): Word | undefined {
 
 export function BuilderView() {
   const { t, lang, pick } = useI18n()
-  const [mode, setModeState] = useState<Mode>(() => load<Mode>('jc.builderMode', 'build'))
   const [step, setStepState] = useState<Step>('situation')
   const [group, setGroup] = useState<PatternGroup>(PATTERNS[0].group)
   const [pattern, setPattern] = useState<Pattern>(PATTERNS[0])
@@ -92,11 +90,6 @@ export function BuilderView() {
   const [recent, setRecent] = useState<Recent[]>(() => load<Recent[]>(RECENT_KEY, []))
   const [card, setCard] = useState<CardContent | null>(null)
   const [expanded, setExpanded] = useState<Key[]>([])
-
-  const setMode = (m: Mode) => {
-    setModeState(m)
-    save('jc.builderMode', m)
-  }
 
   const goTo = (s: Step) => {
     setStepState(s)
@@ -146,6 +139,8 @@ export function BuilderView() {
   }
 
   const suggestions = useMemo(() => suggest(query, lang), [query, lang])
+  // Free text that isn't a ready sentence can go straight to Google Translate, from the language typed.
+  const queryLang: TranslateLang = /[\u3040-\u30ff\u4e00-\u9fff]/.test(query) ? 'ja' : /[\u0590-\u05ff]/.test(query) ? 'iw' : 'en'
 
   // Words for this frame, grouped under the first accepted type they have.
   const sections = useMemo(() => {
@@ -185,18 +180,6 @@ export function BuilderView() {
 
   return (
     <div className="view builder">
-      <div className="seg two mode-switch" role="radiogroup" aria-label={t('builder.mode')}>
-        {(['build', 'translate'] as Mode[]).map((m) => (
-          <button key={m} role="radio" aria-checked={m === mode} className={m === mode ? 'seg-btn active' : 'seg-btn'} onClick={() => setMode(m)}>
-            {m === 'build' ? `🧩 ${t('builder.modeBuild')}` : `🌐 ${t('builder.modeTranslate')}`}
-          </button>
-        ))}
-      </div>
-
-      {mode === 'translate' ? (
-        <TranslateTool />
-      ) : (
-        <>
           <div className="smart">
             <input
               className="search"
@@ -224,6 +207,20 @@ export function BuilderView() {
                   </li>
                 ))}
                 {suggestions.length === 0 && <li className="empty">{t('builder.noSuggest')}</li>}
+                <li>
+                  <a
+                    className="suggest-item suggest-google"
+                    href={translateAppUrl(query.trim(), queryLang, queryLang === 'ja' ? 'iw' : 'ja')}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      const q = query.trim()
+                      const to = queryLang === 'ja' ? 'iw' : 'ja'
+                      openAppOrWeb(translateAppUrl(q, queryLang, to), translateWebUrl(q, queryLang, to))
+                    }}
+                  >
+                    <span className="suggest-gloss">🌐 {t('builder.translateTyped', { text: query.trim() })}</span>
+                  </a>
+                </li>
               </ul>
             )}
           </div>
@@ -437,8 +434,7 @@ export function BuilderView() {
               )}
             </section>
           )}
-        </>
-      )}
+      <TranslateTool />
       {card && <ShowCard card={card} onClose={() => setCard(null)} />}
     </div>
   )
