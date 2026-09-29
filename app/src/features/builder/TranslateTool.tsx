@@ -7,6 +7,7 @@ import {
   LENS_WEB,
   TRANSLATE_APP,
   TRANSLATE_STORE,
+  openAppOrWeb,
   translateAppUrl,
   translateWebUrl,
   type TranslateLang,
@@ -83,16 +84,18 @@ export function TranslateTool() {
         </div>
         <a
           className={typed ? 'primary-btn translate-go' : 'primary-btn translate-go disabled'}
-          href={typed ? translateWebUrl(typed, from, to) : undefined}
+          href={typed ? translateAppUrl(typed, from, to) : undefined}
           aria-disabled={!typed}
-          target="_blank"
-          rel="noopener noreferrer"
+          onClick={(e) => {
+            e.preventDefault()
+            if (typed) openAppOrWeb(translateAppUrl(typed, from, to), translateWebUrl(typed, from, to))
+          }}
         >
           🌐 {t('translate.go')}
         </a>
         {typed && (
-          <a className="link translate-app" href={translateAppUrl(typed, from, to)}>
-            📱 {t('translate.inApp')}
+          <a className="link translate-web" href={translateWebUrl(typed, from, to)} target="_blank" rel="noopener noreferrer">
+            🧭 {t('translate.inBrowser')}
           </a>
         )}
         <p className="muted small-start">{t('translate.note')}</p>

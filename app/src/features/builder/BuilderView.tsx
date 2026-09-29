@@ -7,7 +7,7 @@ import { SpeakButtons } from '../../components/SpeakButtons'
 import { useI18n } from '../../i18n'
 import type { Key } from '../../i18n/en'
 import { build, customWord, fits, MAX_COUNT, VOCAB, wordsFor, type Word } from '../../lib/builder'
-import { translateWebUrl } from '../../lib/googleApps'
+import { openAppOrWeb, translateAppUrl, translateWebUrl } from '../../lib/googleApps'
 import { matches } from '../../lib/search'
 import { load, save } from '../../lib/storage'
 import { suggest } from '../../lib/suggest'
@@ -400,9 +400,13 @@ export function BuilderView() {
                       </button>
                       <a
                         className="icon result-google"
-                        href={translateWebUrl(result.ja, 'ja', lang === 'he' ? 'iw' : 'en')}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={translateAppUrl(result.ja, 'ja', lang === 'he' ? 'iw' : 'en')}
+                        data-web={translateWebUrl(result.ja, 'ja', lang === 'he' ? 'iw' : 'en')}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          const to = lang === 'he' ? 'iw' : 'en'
+                          openAppOrWeb(translateAppUrl(result.ja, 'ja', to), translateWebUrl(result.ja, 'ja', to))
+                        }}
                         aria-label={t('builder.checkGoogle')}
                         title={t('builder.checkGoogle')}
                       >

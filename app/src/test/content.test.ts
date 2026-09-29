@@ -46,7 +46,14 @@ describe('listening cards', () => {
       expect(l.kana, l.id).toMatch(KANA_ONLY)
       expect(l.he + l.reply_he, l.id).toMatch(HEBREW)
       expect(l.en + l.reply_en, l.id).toMatch(LATIN)
+      for (const r of l.replies ?? []) {
+        expect(r.kana, `${l.id}: ${r.ja}`).toMatch(KANA_ONLY)
+        expect(r.he + r.he_pron, `${l.id}: ${r.ja}`).toMatch(HEBREW)
+        expect(r.en + r.romaji, `${l.id}: ${r.ja}`).toMatch(LATIN)
+      }
     }
+    // Most cards now come with a reply you can say.
+    expect(listening.filter((l) => l.replies?.length).length).toBeGreaterThan(30)
   })
 })
 

@@ -822,3 +822,14 @@ a.primary-btn { display: flex; align-items: center; justify-content: center; gap
 .translate-app { align-self: center; }
 .translate-tool p a { color: var(--ai); font-weight: 600; }
 .chip.swap { display: inline-flex; align-items: baseline; gap: 5px; }
+
+/* "They say" cards: what they say, then what you can answer */
+.card.listen .meaning-top { font-weight: 600; }
+.reply { display: flex; flex-direction: column; gap: 6px; margin-block-start: 6px; padding-block-start: 8px; border-block-start: 1px dashed var(--line); }
+.reply-title { font-size: 0.85rem; font-weight: 600; }
+.reply-option { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 12px; background: var(--ai-soft); }
+.reply-text { display: flex; flex-direction: column; min-width: 0; }
+.reply-meaning { font-size: 0.8rem; font-weight: 600; color: var(--ai); }
+.reply-ja { font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+.reply-pron { display: flex; flex-wrap: wrap; gap: 0 8px; font-size: 0.78rem; color: var(--ink-2); }
+.reply-option .actions { flex: none; }
