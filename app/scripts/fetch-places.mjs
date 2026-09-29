@@ -4,6 +4,7 @@
 //   node scripts/fetch-places.mjs            # all of Japan
 //   BOX=35.6,139.65,35.75,139.85 node scripts/fetch-places.mjs   # a test area
 //   EXTRA=1 node scripts/fetch-places.mjs    # only the second set (supermarkets, cafés, parks…), merged into index.json
+//   EXTRA=2 node scripts/fetch-places.mjs    # only the third set (entertainment: bowling, manga cafés, cinemas…), merged too
 //
 // Each region is one CSV query (small and fast); regions that time out are split into four and retried.
 // A category is only published when it passes the coverage check at the bottom (see COVERAGE).
@@ -40,7 +41,7 @@ const REGIONS = process.env.BOX
     ]
 
 const COLUMNS = ['name', 'name:en', 'amenity', 'shop', 'leisure', 'tourism', 'cuisine', 'religion', 'railway', 'bath:type', 'sport', 'second_hand', 'brand', 'access', 'information']
-const EXTRA = !!process.env.EXTRA
+const EXTRA = process.env.EXTRA ?? ''
 
 const SHOP_NAMES =
   'ドン・キホーテ|ドン･キホーテ|MEGAドン|ハードオフ|HARD ?OFF|オフハウス|ホビーオフ|ブックオフ|BOOK ?OFF|ポケモンセンター|ポケモンストア|古着|アニメイト|まんだらけ|らしんばん|駿河屋|ガチャ|ガシャポン|着物レンタル|レンタル着物'
@@ -48,6 +49,16 @@ const SHOP_NAMES =
 function query([s, w, n, e]) {
   const bb = `${s},${w},${n},${e}`
   const cols = ['::type', '::id', '::lat', '::lon', ...COLUMNS.map((c) => `"${c}"`)].join(',')
+  if (EXTRA === '2')
+    return `[out:csv(${cols};true;"\\t")][timeout:300];
+(
+  nw[leisure~"^(bowling_alley|escape_game)$"](${bb});
+  nw[amenity~"^(cinema|internet_cafe|planetarium)$"](${bb});
+  nw[tourism=theme_park](${bb});
+  nw[leisure][name~"バッティングセンター"](${bb});
+  nw[amenity][name~"快活CLUB|快活クラブ|マンボー|自遊空間|まんが喫茶|漫画喫茶|ネットカフェ"](${bb});
+);
+out center;`
   if (EXTRA)
     return `[out:csv(${cols};true;"\\t")][timeout:300];
 (
@@ -115,7 +126,7 @@ async function fetchBox(box) {
 
 async function collect(box, depth = 0) {
   const pad = '  '.repeat(depth)
-  const file = join(CACHE, `${EXTRA ? 'extra-' : ''}${box.join('_')}.json`)
+  const file = join(CACHE, `${EXTRA ? `extra${EXTRA}-` : ''}${box.join('_')}.json`)
   try {
     const cached = JSON.parse(await readFile(file, 'utf8'))
     console.log(`${pad}✓ ${box.join(',')}: ${cached.length} (cached)`)
@@ -159,6 +170,17 @@ const EXTRA_RULES = {
   museum: (r) => r.tourism === 'museum' || r.tourism === 'gallery',
   zoo: (r) => r.tourism === 'zoo' || r.tourism === 'aquarium',
   bike: (r) => r.amenity === 'bicycle_rental',
+}
+
+/** Third set (EXTRA=2): entertainment. */
+const FUN_RULES = {
+  bowling: (r) => r.leisure === 'bowling_alley' || has(r.name, /ボウリング|bowl/i),
+  'manga-cafe': (r) => r.amenity === 'internet_cafe' || has(nm(r), /快活CLUB|快活クラブ|マンボー|自遊空間|まんが喫茶|漫画喫茶|ネットカフェ/i),
+  cinema: (r) => r.amenity === 'cinema',
+  'theme-park': (r) => r.tourism === 'theme_park',
+  batting: (r) => has(r.name, /バッティングセンター/),
+  escape: (r) => r.leisure === 'escape_game',
+  planetarium: (r) => r.amenity === 'planetarium',
 }
 
 /** id → test. Ids match SEARCH_CATEGORIES items in src/content/nearby.ts. */
@@ -245,7 +267,7 @@ function coverage(points) {
   return { dense, sparse, ok: points.length >= 20 && (dense >= 4 || sparse >= 4) }
 }
 
-const RULES = EXTRA ? EXTRA_RULES : MAIN_RULES
+const RULES = EXTRA === '2' ? FUN_RULES : EXTRA ? EXTRA_RULES : MAIN_RULES
 
 // ---- Run ----
 

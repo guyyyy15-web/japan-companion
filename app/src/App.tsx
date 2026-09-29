@@ -4,7 +4,7 @@ import { Toast } from './components/Toast'
 import { WhatsNew } from './components/WhatsNew'
 import { PhrasesView } from './features/phrases/PhrasesView'
 import { BuilderView } from './features/builder/BuilderView'
-import { NearbyView } from './features/nearby/NearbyView'
+import { NearbyTab } from './features/nearby/NearbyTab'
 import { SignsView } from './features/signs/SignsView'
 import { MoneyView } from './features/money/MoneyView'
 import { GalleryView } from './features/gallery/GalleryView'
@@ -41,7 +41,7 @@ export function App() {
         <WhatsNew onOpen={setTab} />
         {tab === 'phrases' && <PhrasesView />}
         {tab === 'builder' && <BuilderView />}
-        {tab === 'nearby' && <NearbyView />}
+        {tab === 'nearby' && <NearbyTab />}
         {tab === 'signs' && <SignsView />}
         {tab === 'money' && <MoneyView />}
         {tab === 'gallery' && <GalleryView />}
