@@ -55,7 +55,8 @@ function query([s, w, n, e]) {
   nw[leisure~"^(bowling_alley|escape_game)$"](${bb});
   nw[amenity~"^(cinema|internet_cafe|planetarium)$"](${bb});
   nw[tourism=theme_park](${bb});
-  nw[name~"バッティングセンター|快活CLUB|快活クラブ|マンボー|自遊空間|まんが喫茶|漫画喫茶|ネットカフェ"](${bb});
+  nw[leisure][name~"バッティングセンター"](${bb});
+  nw[amenity][name~"快活CLUB|快活クラブ|マンボー|自遊空間|まんが喫茶|漫画喫茶|ネットカフェ"](${bb});
 );
 out center;`
   if (EXTRA)
