@@ -885,3 +885,28 @@ a.primary-btn { display: flex; align-items: center; justify-content: center; gap
 .translate-more a { color: var(--ai); font-weight: 600; }
 .suggest-google .suggest-gloss { color: var(--ai); }
 a.suggest-item { display: block; text-decoration: none; color: inherit; }
+
+/* Attractions */
+.nearby-mode { margin-block-end: 2px; }
+.attractions { display: flex; flex-direction: column; gap: 10px; }
+.interest-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.tool-chip.on { background: var(--ai); color: #fff; border-color: var(--ai); }
+button.tool-chip { font: inherit; font-size: 0.8rem; cursor: pointer; }
+.book-now { border-color: var(--shu); }
+.book-now summary { font-weight: 700; cursor: pointer; }
+.book-now ul { list-style: none; margin: 8px 0 4px; padding: 0; display: flex; flex-direction: column; gap: 5px; font-size: 0.88rem; }
+.book-now a { color: var(--ink); font-weight: 600; }
+.badge { margin-inline-end: 4px; }
+.attr-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.attr-card { display: flex; flex-direction: column; gap: 6px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); scroll-margin-block-start: 90px; }
+.attr-card.been { opacity: 0.6; }
+.attr-head { display: flex; align-items: center; gap: 10px; }
+.attr-icon { font-size: 1.6rem; flex: none; }
+.attr-title { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.attr-ja { font-size: 0.78rem; color: var(--ink-2); }
+.attr-what { margin: 0; font-size: 0.9rem; }
+.attr-booking { font-size: 0.82rem; padding: 6px 8px; border-radius: 10px; background: var(--paper); }
+.attr-booking.hard { background: var(--shu-soft); }
+.attr-booking.book { background: #fbf3dc; }
+.attr-tip { margin: 0; font-size: 0.82rem; color: var(--ink-2); }
+.attr-actions { display: flex; flex-wrap: wrap; gap: 6px; }
