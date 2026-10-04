@@ -240,7 +240,7 @@ export const he: Record<Key, string> = {
   'phrases.unfavorite': 'הסרה מהמועדפים',
   'phrases.reply': 'מה עונים',
 
-  'cat.basics': 'בסיס',
+  'cat.basics': 'מילות בסיס ונימוס',
   'cat.restaurant': 'מסעדה',
   'cat.shopping': 'קניות',
   'cat.hobbies': 'תחביבים ואספנות',
