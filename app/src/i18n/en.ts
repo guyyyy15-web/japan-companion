@@ -239,7 +239,7 @@ export const en = {
   'phrases.unfavorite': 'Remove from favorites',
   'phrases.reply': 'You answer',
 
-  'cat.basics': 'Basics',
+  'cat.basics': 'Basics & manners',
   'cat.restaurant': 'Restaurant',
   'cat.shopping': 'Shopping',
   'cat.hobbies': 'Hobbies & collecting',

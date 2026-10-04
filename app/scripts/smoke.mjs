@@ -66,9 +66,9 @@ await page.waitForSelector('.tabbar')
 // What's new: shown once, each line jumps to its tab.
 check(await page.isVisible('.whatsnew'), "what's new card shows after an update")
 await page.screenshot({ path: `${OUT}he-whatsnew.png` })
-// The first line of the current release notes points at the Nearby tab.
+// The first line of the current release notes points at the Phrases tab.
 await page.click('.whatsnew-item >> nth=0')
-check(await page.isVisible('.nearby-mode'), "what's new: the first line opens its tab (Nearby)")
+check(await page.isVisible('.view > .search'), "what's new: the first line opens its tab (Phrases)")
 await page.reload()
 await page.waitForSelector('.tabbar')
 check(!(await page.isVisible('.whatsnew')), "what's new: not shown again")
@@ -244,6 +244,18 @@ await page.fill('.view > .search', '')
 await page.click('.chip:has-text("כיוונים")')
 check((await page.$$eval('.phrase-main', (els) => els.length)) >= 20, 'directions: its own category chip')
 await page.screenshot({ path: `${OUT}he-directions.png` })
+
+// Everyday basics: "לילה טוב" and "היה ממש טעים" are one search away, and the chip holds 40+ phrases.
+await page.fill('.view > .search', 'לילה טוב')
+const nightHits = await page.$$eval('.phrase-main .ja-line', (els) => els.map((e) => e.textContent))
+check(nightHits.includes('おやすみなさい'), `basics: search "לילה טוב" → ${nightHits.join(' · ')}`)
+await page.fill('.view > .search', 'היה ממש טעים')
+const yumHits = await page.$$eval('.phrase-main .ja-line', (els) => els.map((e) => e.textContent))
+check(yumHits.includes('とてもおいしかったです'), `basics: search "היה ממש טעים" → ${yumHits.join(' · ')}`)
+await page.fill('.view > .search', '')
+await page.click('.chip:has-text("מילות בסיס")')
+check((await page.$$eval('.phrase-main', (els) => els.length)) >= 40, 'basics: the "basics & manners" chip holds 40+ phrases')
+await page.screenshot({ path: `${OUT}he-basics.png` })
 
 // Show-card.
 await page.click('.tab:has-text("ביטויים")')
