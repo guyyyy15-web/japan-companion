@@ -52,6 +52,16 @@ const errors = []
 page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
 page.on('pageerror', (e) => errors.push(String(e)))
 
+// Signs, Gallery and Guide live under "More" (0.18); the others are in the tab bar.
+const MORE = { he: 'עוד', en: 'More' }
+async function openTab(p, label) {
+  const direct = p.locator(`.tab:has-text("${label}")`)
+  if (await direct.count()) return direct.first().click()
+  const lang = await p.evaluate(() => document.documentElement.lang)
+  await p.click(`.tab:has-text("${MORE[lang] || MORE.he}")`)
+  await p.click(`.more-item:has-text("${label}")`)
+}
+
 const check = (cond, msg) => {
   if (!cond) throw new Error(`FAIL: ${msg}`)
   console.log(`ok  ${msg}`)
@@ -63,12 +73,37 @@ const PNG = { name: 'receipt.png', mimeType: 'image/png', buffer: Buffer.from('i
 await page.goto(URL_)
 await page.waitForSelector('.tabbar')
 
-// What's new: shown once, each line jumps to its tab.
+// Someone new (a friend got the link): a 3-step intro, then straight in (no "what's new").
+check(await page.isVisible('.intro'), 'a first visit opens the intro')
+await page.screenshot({ path: `${OUT}he-intro-1.png` })
+await page.click('.intro-next')
+check((await page.$$('.intro-tour li')).length === 5, 'intro step 2: the five tabs explained')
+await page.screenshot({ path: `${OUT}he-intro-2.png` })
+await page.click('.intro-next')
+check(await page.isVisible('.intro >> text=הוספה למסך הבית'), 'intro step 3: how to add it to the Home Screen')
+await page.screenshot({ path: `${OUT}he-intro-3.png` })
+await page.click('.intro-next')
+check(!(await page.isVisible('.intro')) && !(await page.isVisible('.whatsnew')), "after the intro: the app, no what's-new card for someone new")
+await page.reload()
+await page.waitForSelector('.tabbar')
+check(!(await page.isVisible('.intro')), 'the intro shows once')
+
+// Someone who used an older version: no intro, the one-time "what's new" card instead.
+await page.evaluate(() => { localStorage.setItem('jc.introDone', 'false'); localStorage.setItem('jc.seenVersion', '"0.17"') })
+await page.reload()
+await page.waitForSelector('.tabbar')
+check(!(await page.isVisible('.intro')), 'an existing user does not get the intro')
 check(await page.isVisible('.whatsnew'), "what's new card shows after an update")
 await page.screenshot({ path: `${OUT}he-whatsnew.png` })
-// The first line of the current release notes points at the Phrases tab.
+check((await page.$$('.tabbar .tab')).length === 5, 'the tab bar has 5 tabs')
+// The first line of the current release notes points at the More tab.
 await page.click('.whatsnew-item >> nth=0')
-check(await page.isVisible('.view > .search'), "what's new: the first line opens its tab (Phrases)")
+check(await page.isVisible('.more-item:has-text("שלטים")') && await page.isVisible('.more-item:has-text("גלריה")') && await page.isVisible('.more-item:has-text("מדריך")'), "what's new: the first line opens More, with Signs, Gallery and Guide")
+await page.screenshot({ path: `${OUT}he-more.png` })
+await page.click('.more-item:has-text("שלטים")')
+check(await page.isVisible('.back-more') && await page.isVisible('.tab.active:has-text("עוד")'), 'a screen under More keeps More lit and has a way back')
+await page.click('.back-more')
+check(await page.isVisible('.more-item:has-text("שלטים")'), 'back goes to the More list')
 await page.reload()
 await page.waitForSelector('.tabbar')
 check(!(await page.isVisible('.whatsnew')), "what's new: not shown again")
@@ -89,7 +124,7 @@ for (const lang of ['he', 'en']) {
   const dir = await page.evaluate(() => document.documentElement.dir)
   check(dir === (lang === 'he' ? 'rtl' : 'ltr'), `${lang}: dir=${dir}`)
   for (const [id, label] of tabs) {
-    await page.click(`.tab:has-text("${label[lang]}")`)
+    await openTab(page, label[lang])
     await page.waitForTimeout(150)
     await page.screenshot({ path: `${OUT}${lang}-${id}.png` })
   }
@@ -97,7 +132,7 @@ for (const lang of ['he', 'en']) {
 
 // Converter: ¥5,000 shows ₪ and $.
 await page.click('.lang') // back to Hebrew
-await page.click('.tab:has-text("כסף")')
+await openTab(page, 'כסף')
 for (const k of ['5', '000']) await page.click(`.key:text-is("${k}")`)
 const outs = await page.$$eval('.display-out', (els) => els.map((e) => e.textContent))
 check(outs.some((t) => t.includes('₪')) && outs.some((t) => t.includes('$')), `converter ¥5,000 → ${outs.join(' / ')}`)
@@ -119,13 +154,13 @@ check(walletTotal.includes('5,000') && walletTotal.includes('₪') && walletItem
 check(!(await page.isVisible('.wallet-add')), 'wallet: the converter clears after adding')
 await page.screenshot({ path: `${OUT}he-wallet.png`, fullPage: true })
 await page.reload()
-await page.click('.tab:has-text("כסף")')
+await openTab(page, 'כסף')
 check((await page.$$eval('.wallet-items li', (els) => els.length)) === 1, 'wallet: entries survive a reload')
 await page.waitForSelector('.wallet-items .photo-thumb img', { timeout: 5000 })
 check(true, 'wallet: the receipt photo survives a reload (IndexedDB)')
 
 // Gallery: receipts from the wallet, plus photos saved by category.
-await page.click('.tab:has-text("גלריה")')
+await openTab(page, 'גלריה')
 await page.click('.gallery .chip:has-text("קבלות")')
 check((await page.$$eval('.photo-cell', (els) => els.length)) === 1 && (await page.textContent('.photo-cell figcaption')).includes('Tamagotchi'), 'gallery: the wallet receipt shows under Receipts, with its expense')
 await page.click('.gallery .chip:has-text("כרטיסים")')
@@ -141,7 +176,7 @@ await page.click('.photo-actions .primary')
 await page.screenshot({ path: `${OUT}he-gallery.png`, fullPage: true })
 
 // Sizes in the guide.
-await page.click('.tab:has-text("מדריך")')
+await openTab(page, 'מדריך')
 await page.click('#sizes summary')
 check((await page.textContent('.size-big')).includes('24 cm'), 'sizes: EU 38 → 24 cm')
 
@@ -153,7 +188,7 @@ const pickFrame = async (group, frame) => {
   await page.click(`.frame:has-text("${frame}")`)
   check(await page.isVisible('.wizard-step .words'), `builder: "${frame}" leads straight to the words`)
 }
-await page.click('.tab:has-text("משפטים")')
+await openTab(page, 'משפטים')
 check((await page.$$eval('.situation', (els) => els.length)) === 5, 'builder: step 1 shows the 5 situations')
 await page.screenshot({ path: `${OUT}he-builder-step1.png` })
 await pickFrame('התמצאות', 'איפה …?')
@@ -220,7 +255,7 @@ check(typedGoogle.startsWith('googletranslate://?sl=iw&tl=ja&text='), 'builder: 
 await page.fill('.smart .search', '')
 
 // They say: filter by place; each reply can be heard and shown.
-await page.click('.tab:has-text("ביטויים")')
+await openTab(page, 'ביטויים')
 await page.click('.chip:has-text("מה אומרים לכם")')
 const allListen = await page.$$eval('.card.listen', (els) => els.length)
 await page.click('.chips >> nth=1 >> .chip:has-text("קונביני")')
@@ -236,7 +271,7 @@ await page.click('.showcard-actions .primary')
 await page.screenshot({ path: `${OUT}he-they-say.png`, fullPage: true })
 
 // Directions: searching "ימינה" finds the direction phrases.
-await page.click('.tab:has-text("ביטויים")')
+await openTab(page, 'ביטויים')
 await page.fill('.view > .search', 'ימינה')
 const dirHits = await page.$$eval('.phrase-main .ja-line', (els) => els.map((e) => e.textContent))
 check(dirHits.includes('右') && dirHits.includes('右に曲がってください'), `directions: search "ימינה" → ${dirHits.join(' · ')}`)
@@ -258,7 +293,7 @@ check((await page.$$eval('.phrase-main', (els) => els.length)) >= 40, 'basics: t
 await page.screenshot({ path: `${OUT}he-basics.png` })
 
 // Show-card.
-await page.click('.tab:has-text("ביטויים")')
+await openTab(page, 'ביטויים')
 await page.click('.chip:has-text("מסעדה")')
 await page.click('.phrase-main >> nth=0')
 check(await page.isVisible('.showcard-ja'), 'show-card opens with Japanese text')
@@ -280,7 +315,7 @@ check((await progress()) !== practiceBefore, `practice: "knew it" counts (${awai
 await page.screenshot({ path: `${OUT}he-practice.png` })
 
 // Nearby: nearest toilets and bins from the bundled OpenStreetMap data, with walking links.
-await page.click('.tab:has-text("בסביבה")')
+await openTab(page, 'בסביבה')
 await page.click('.primary-btn')
 await page.waitForSelector('.nearby-list li', { timeout: 15000 })
 const toilets = await page.$$eval('.nearby-list li', (els) => els.length)
@@ -355,7 +390,7 @@ const arcadeNames = await page.$$eval('.attr-card strong', (els) => els.map((e) 
 check(arcadeNames.some((n) => n.includes('Super Potato')) && !arcadeNames.some((n) => n.includes('פושימי')), `attractions: the arcade filter (${arcadeNames.length})`)
 await page.screenshot({ path: `${OUT}he-attractions.png`, fullPage: true })
 await page.reload()
-await page.click('.tab:has-text("בסביבה")')
+await openTab(page, 'בסביבה')
 await page.click('.interest-row .tool-chip:has-text("הרשימה שלי")')
 const mine = await page.$$eval('.attr-card strong', (els) => els.map((e) => e.textContent))
 check(mine.length === 1 && mine[0].includes('פושימי'), 'attractions: my list survives a reload')
@@ -380,7 +415,7 @@ await page.waitForFunction(() => !!navigator.serviceWorker.controller)
 await context.setOffline(true)
 await page.reload()
 check(await page.isVisible('.tabbar'), 'app renders offline')
-await page.click('.tab:has-text("בסביבה")')
+await openTab(page, 'בסביבה')
 await page.click('.primary-btn')
 await page.waitForSelector('.nearby-list li', { timeout: 15000 })
 check(true, 'nearby: nearest toilets work offline (data precached)')
@@ -399,13 +434,19 @@ await se.addInitScript(FAKE_SPEECH, [{ name: 'Samantha', lang: 'en-US' }])
 const sp = await se.newPage()
 await sp.goto(URL_)
 await sp.waitForSelector('.tabbar')
+for (let i = 0; i < 3; i++) {
+  const { sw, iw } = await sp.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth }))
+  const btn = await sp.$eval('.intro-next', (b) => { const r = b.getBoundingClientRect(); return r.bottom <= innerHeight && r.right <= innerWidth })
+  check(sw <= iw && btn, `SE: intro step ${i + 1} fits (button on screen, no sideways scroll)`)
+  await sp.click('.intro-next')
+}
 for (const tab of ['ביטויים', 'משפטים', 'בסביבה', 'שלטים', 'כסף', 'גלריה', 'מדריך']) {
-  await sp.click(`.tab:has-text("${tab}")`)
+  await openTab(sp, tab)
   await sp.waitForTimeout(100)
   const { sw, iw } = await sp.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth }))
   check(sw <= iw, `SE: ${tab} has no sideways scroll (${sw} ≤ ${iw})`)
 }
-await sp.click('.tab:has-text("משפטים")')
+await openTab(sp, 'משפטים')
 for (const g of ['התמצאות', 'הזמנות', 'קניות', 'בקשות', 'בעיות']) {
   await sp.click('.crumb >> nth=0')
   await sp.click(`.situation:has-text("${g}")`)

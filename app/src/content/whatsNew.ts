@@ -3,9 +3,9 @@ import type { Bi } from './guide'
 
 /** Shown once after an update. Bump `version` and replace the items when shipping something worth pointing at. */
 export const WHATS_NEW: { version: string; items: (Bi & { icon: string; tab: Tab })[] } = {
-  version: '0.17',
+  version: '0.18',
   items: [
-    { icon: '🙏', tab: 'phrases', he: 'מילות בסיס ונימוס: 42 מילים ומשפטים קצרים ליום-יום (לילה טוב, להתראות, תודה על האוכל, היה ממש טעים…)', en: 'Basics & manners: 42 everyday words and short phrases (good night, goodbye, thanks for the meal, it was delicious…)' },
-    { icon: '🍜', tab: 'phrases', he: 'לפני ואחרי האוכל: いただきます, ごちそうさまでした ותגובות כמו "מדהים!" ו"איזה יפה!"', en: 'Before and after meals: いただきます, ごちそうさまでした, plus reactions like "Amazing!" and "How beautiful!"' },
+    { icon: '🧭', tab: 'more', he: 'סרגל מסודר יותר: שלטים, גלריה ומדריך נמצאים עכשיו תחת "עוד"', en: 'A tidier tab bar: Signs, Gallery and Guide now live under "More"' },
+    { icon: '🎁', tab: 'more', he: 'חברים טסים ליפן? "עוד" ← שלחו להם את האפליקציה. בפתיחה הראשונה הם יקבלו הסבר קצר', en: 'Friends flying to Japan? More → send them the app. They get a short intro the first time they open it' },
   ],
 }
