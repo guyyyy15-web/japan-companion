@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { TabBar, type Tab } from './components/TabBar'
+import { TabBar, UNDER_MORE, type Tab } from './components/TabBar'
+import { MoreView, BackToMore } from './components/MoreView'
+import { Intro } from './components/Intro'
 import { Toast } from './components/Toast'
 import { WhatsNew } from './components/WhatsNew'
 import { PhrasesView } from './features/phrases/PhrasesView'
@@ -11,12 +13,34 @@ import { GalleryView } from './features/gallery/GalleryView'
 import { GuideView } from './features/guide/GuideView'
 import { useI18n } from './i18n'
 import { load, save } from './lib/storage'
+import { WHATS_NEW } from './content/whatsNew'
 
 const TAB_KEY = 'jc.tab'
+const INTRO_KEY = 'jc.introDone'
+
+/**
+ * The intro is for someone new. Anyone who already used the app (a saved tab, language or seen release notes)
+ * skips it.
+ */
+function isNewUser(): boolean {
+  if (load<boolean>(INTRO_KEY, false)) return false
+  try {
+    return !['jc.tab', 'jc.lang', 'jc.seenVersion'].some((k) => localStorage.getItem(k) !== null)
+  } catch {
+    return false
+  }
+}
 
 export function App() {
   const { t, lang, setLang } = useI18n()
   const [tab, setTabState] = useState<Tab>(() => load<Tab>(TAB_KEY, 'phrases'))
+  const [intro, setIntro] = useState(isNewUser)
+  const endIntro = () => {
+    save(INTRO_KEY, true)
+    save('jc.seenVersion', WHATS_NEW.version) // someone new doesn't need "what's new"
+    setIntro(false)
+    window.scrollTo(0, 0)
+  }
   const setTab = (next: Tab) => {
     setTabState(next)
     save(TAB_KEY, next)
@@ -38,7 +62,9 @@ export function App() {
         </button>
       </header>
       <main>
-        <WhatsNew onOpen={setTab} />
+        {!intro && <WhatsNew onOpen={setTab} />}
+        {UNDER_MORE.includes(tab) && <BackToMore onBack={() => setTab('more')} />}
+        {tab === 'more' && <MoreView onOpen={setTab} onIntro={() => setIntro(true)} />}
         {tab === 'phrases' && <PhrasesView />}
         {tab === 'builder' && <BuilderView />}
         {tab === 'nearby' && <NearbyTab />}
@@ -49,6 +75,7 @@ export function App() {
       </main>
       <TabBar tab={tab} onChange={setTab} />
       <Toast />
+      {intro && <Intro onDone={endIntro} />}
     </div>
   )
 }
